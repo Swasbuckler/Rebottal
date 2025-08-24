@@ -1,0 +1,23 @@
+{
+  "name": "rebottal",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "scripts": {
+    "dev:web": "npm run dev --workspace=@rebottal/web-frontend",
+    "dev:api": "npm run start:dev --workspace=@rebottal/api-backend",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\""
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "concurrently": "^9.2.0",
+    "create-next-app": "^15.5.0"
+  }
+}
