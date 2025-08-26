@@ -1,0 +1,6 @@
+{
+  "name": "@rebottal/interfaces",
+  "version": "1.0.0",
+  "description": "Shared Interfaces",
+  "main": "index.ts"
+}

@@ -2,6 +2,7 @@
 
 import { SignUpFormSchema, signUpFormSchema } from "../lib/definitions";
 import z from "zod";
+import { CreateUser } from "@rebottal/interfaces";
 
 export async function signUp(formData: FormData) {
 
@@ -20,5 +21,18 @@ export async function signUp(formData: FormData) {
       inputs: rawInput
     }
   }
+
+  const registerApiURL = process.env.BACKEND_URL! + '/auth/register';
+  const registerData: CreateUser = {
+    username: validatedFields.data.username,
+    email: validatedFields.data.email,
+    password: validatedFields.data.password,
+  }
+
+  await fetch(registerApiURL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(registerData),
+  });
 
 }
