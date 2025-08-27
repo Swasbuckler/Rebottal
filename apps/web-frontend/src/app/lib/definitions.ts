@@ -10,7 +10,6 @@ const passwordErrors = {
   uppercase: 'Include at least 1 Uppercase Letter', 
   number: 'Include at least 1 Number', 
   special: 'Include at least 1 Special Character', 
-  space: 'Must not include Spaces'
 };
 
 export const passwordErrorsArray = Object.values(passwordErrors);
@@ -31,8 +30,7 @@ export const signUpFormSchema = z.object({
     .regex(/[a-z]/, {error: passwordErrors.lowercase})
     .regex(/[A-Z]/, {error: passwordErrors.uppercase})
     .regex(/[0-9]/, {error: passwordErrors.number})
-    .regex(/[^a-zA-Z0-9 ]/, {error: passwordErrors.special})
-    .refine((password) => !password.includes(' '), {error: passwordErrors.space}),
+    .regex(/[^a-zA-Z0-9 ]/, {error: passwordErrors.special}),
   confirm: z.string(),
 }).refine((data) => data.password === data.confirm, {
   error: 'Passwords do not match',

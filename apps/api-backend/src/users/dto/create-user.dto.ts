@@ -2,12 +2,12 @@ import { ApiProperty } from "@nestjs/swagger";
 import { CreateUser } from "@rebottal/interfaces";
 
 export class CreateUserDto implements CreateUser {
-  @ApiProperty()
+  @ApiProperty({required: true})
   username: string;
 
-  @ApiProperty()
+  @ApiProperty({required: true})
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({required: true})
   password: string;
 }

@@ -1,6 +1,7 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception/prisma-client-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,9 @@ async function bootstrap() {
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
+  const {httpAdapter} = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter))
 
   await app.listen(process.env.PORT ?? 5000);
   console.log("Server is listening to Port", process.env.PORT ?? 5000);

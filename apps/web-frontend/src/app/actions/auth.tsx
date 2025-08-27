@@ -1,8 +1,7 @@
 'use server';
 
 import { SignUpFormSchema, signUpFormSchema } from "../lib/definitions";
-import z from "zod";
-import { CreateUser } from "@rebottal/interfaces";
+import { CheckString, CreateUser } from "@rebottal/interfaces";
 
 export async function signUp(formData: FormData) {
 
@@ -16,23 +15,40 @@ export async function signUp(formData: FormData) {
   const validatedFields = signUpFormSchema.safeParse(rawInput);
 
   if (!validatedFields.success) {
-    return {
-      errors: z.treeifyError(validatedFields.error),
-      inputs: rawInput
-    }
+    return;
   }
 
-  const registerApiURL = process.env.BACKEND_URL! + '/auth/register';
-  const registerData: CreateUser = {
+  const signUpData: CreateUser = {
     username: validatedFields.data.username,
     email: validatedFields.data.email,
     password: validatedFields.data.password,
   }
 
-  await fetch(registerApiURL, {
+  await fetch(process.env.BACKEND_URL! + '/auth/signup', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(registerData),
+    body: JSON.stringify(signUpData),
   });
+}
+
+export async function checkUsername(username: CheckString) {
+  const response = await fetch(process.env.BACKEND_URL! + '/users/check-username', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(username),
+  });
+  return await response.json();
+}
+
+export async function checkEmail(email: CheckString) {
+  const response = await fetch(process.env.BACKEND_URL! + '/users/check-email', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(email),
+  });
+  return await response.json();
+}
+
+export async function logIn(formData: FormData) {
 
 }

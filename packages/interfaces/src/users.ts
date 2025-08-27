@@ -1,11 +1,11 @@
 export interface User {
   id: string,
-  createdAt: string,
+  createdAt: Date,
   username: string,
   email: string,
   password: string,
-  isVerified: string,
-  isAdmin: string,
+  isVerified: boolean,
+  isAdmin: boolean,
 };
 
 export interface CreateUser {
@@ -13,3 +13,7 @@ export interface CreateUser {
   email: string,
   password: string,
 };
+
+export interface CheckString {
+  stringValue: string
+}
