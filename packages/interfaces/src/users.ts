@@ -14,6 +14,11 @@ export interface CreateUser {
   password: string,
 };
 
-export interface CheckString {
-  stringValue: string
+export interface LogInUser {
+  usernameOrEmail: string,
+  password: string,
+}
+
+export interface CheckValue {
+  value: any;
 }

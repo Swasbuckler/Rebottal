@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { checkEmail, checkUsername, signUp } from "../actions/auth";
+import { signUp } from "../actions/auth";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
 import { passwordErrorsArray, signUpFormSchema, SignUpFormSchema } from "../lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounce } from "../lib/debounce";
-import { CheckString } from "@rebottal/interfaces";
+import { CheckValue } from "@rebottal/interfaces";
 
 export default function SignUpForm() {
   
@@ -42,7 +42,7 @@ export default function SignUpForm() {
         fieldLabel="Enter Username"
         register={register}
         getValues={getValues}
-        checkFunction={checkUsername}
+        apiUrl={'check-username'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -53,7 +53,7 @@ export default function SignUpForm() {
         fieldLabel="Enter Email"
         register={register}
         getValues={getValues}
-        checkFunction={checkEmail}
+        apiUrl={'check-email'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -75,7 +75,7 @@ function DebounceInput({
   fieldLabel,
   register, 
   getValues,
-  checkFunction,
+  apiUrl,
   errors,
   touchedFields,
 }: {
@@ -85,7 +85,7 @@ function DebounceInput({
   fieldLabel: string,
   register: UseFormRegister<SignUpFormSchema>,
   getValues: UseFormGetValues<SignUpFormSchema>,
-  checkFunction: (stringValue: CheckString) => Promise<any>,
+  apiUrl: string,
   errors: FieldErrors<SignUpFormSchema>,
   touchedFields: Partial<Readonly<any>>
 }) {
@@ -94,10 +94,19 @@ function DebounceInput({
 
   const checkValueDebounce = async (value: string) => {
     setValueExists(n => 2);
-    if (await checkFunction({stringValue: value})) setValueExists(n => 1);
+
+    const checkValue: CheckValue = {value: value}
+    const response = await fetch('/api/auth/' + apiUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(checkValue),
+    })
+    if (await response.json()) setValueExists(n => 1);
     else setValueExists(n => 0);
   }
-  const valueDebounce = debounce(checkValueDebounce, 1000);
+
+  const debounceDelay = 500;
+  const valueDebounce = debounce(checkValueDebounce, debounceDelay);
 
   const existSwitch = (valueExists: ValueExists) => {
     switch (valueExists) {
@@ -119,9 +128,7 @@ function DebounceInput({
         type={type}
         {...register(field, {
           onChange: () => {
-            if ([0, 1].includes(valueExists) ) {
-              valueDebounce(getValues(field));
-            }
+            valueDebounce(getValues(field));
           }
         })}
         placeholder={placeholder}
@@ -144,6 +151,8 @@ function PasswordInput({
 }) {
 
   const [errorArray, setErrorArray] = useState<string[]>(passwordErrorsArray);
+  const [passwordVisibility, setPasswordVisibility] = useState<boolean>(false);
+  const [confirmVisibility, setConfirmVisibility] = useState<boolean>(false);
 
   useEffect(() => {
     trigger('password');
@@ -157,7 +166,7 @@ function PasswordInput({
     <>
       <label htmlFor="password">Enter Password</label>
       <input 
-        type="password" 
+        type={passwordVisibility ? 'text' : 'password'} 
         {...register('password', {
           onChange: () => {
             trigger('confirm');
@@ -166,6 +175,7 @@ function PasswordInput({
         placeholder="Enter Password"
         autoComplete="off"
       />
+      <button type="button" onClick={() => setPasswordVisibility(!passwordVisibility)}>Reveal</button>
       <div>
         <p>Password must:</p>
         <ul>
@@ -174,44 +184,15 @@ function PasswordInput({
           ))}
         </ul>
       </div>
-      <FieldInput 
-        type="password"
-        placeholder="Re-enter Password"
-        field="confirm"
-        fieldLabel="Confirm Password"
-        register={register}
-        errors={errors}
-      />
-    </>
-  );
-}
-
-function FieldInput({
-  type,
-  placeholder,
-  field,
-  fieldLabel,
-  register,
-  errors
-}: {
-  type: string,
-  placeholder: string,
-  field: keyof SignUpFormSchema,
-  fieldLabel: string,
-  register: UseFormRegister<SignUpFormSchema>,
-  errors: FieldErrors<SignUpFormSchema>,
-}) {
- 
-  return (
-    <>
-      <label htmlFor={field}>{fieldLabel}</label>
+      <label htmlFor="confirm">Confirm Password</label>
       <input 
-        type={type} 
-        {...register(field)}
-        placeholder={placeholder}
+        type={confirmVisibility ? 'text' : 'password'} 
+        {...register('confirm')}
+        placeholder="Re-enter Password"
         autoComplete="off"
       />
-      <p className="text-red-500">{errors[field] && errors[field].message}</p>
+      <button type="button" onClick={() => setConfirmVisibility(!confirmVisibility)}>Reveal</button>
+      <p className="text-red-500">{errors.confirm && errors.confirm.message}</p>
     </>
   );
 }

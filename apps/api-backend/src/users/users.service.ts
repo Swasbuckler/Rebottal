@@ -19,6 +19,18 @@ export class UsersService {
     return await this.prisma.users.findUnique({where: {id}});
   }
 
+  async findUser(usernameOrEmail: string): Promise<User | null> {
+    return await this.prisma.users.findFirst({
+      where: {
+        OR: [
+          {username: usernameOrEmail},
+          {email: usernameOrEmail}
+        ]
+      },
+    });
+  }
+
+
   async doesUsernameExists(username: string): Promise<boolean> {
     return Boolean(await this.prisma.users.count({
       where: {

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '@rebottal/interfaces';
-import { CheckStringDto } from './dto/check-string.dto';
+import { CheckValueDto } from './dto/check-value.dto';
 
 @Controller('users')
 export class UsersController {
@@ -24,12 +24,12 @@ export class UsersController {
   }
 
   @Post('check-username')
-  async checkUsernameAvailability(@Body() inputData: CheckStringDto): Promise<boolean> {
-    return await this.usersService.doesUsernameExists(inputData.stringValue);
+  async checkUsernameAvailability(@Body() inputData: CheckValueDto): Promise<boolean> {
+    return await this.usersService.doesUsernameExists(inputData.value);
   }
 
   @Post('check-email')
-  async checkEmailAvailability(@Body() inputData: CheckStringDto): Promise<boolean> {
-    return await this.usersService.doesEmailExists(inputData.stringValue);
+  async checkEmailAvailability(@Body() inputData: CheckValueDto): Promise<boolean> {
+    return await this.usersService.doesEmailExists(inputData.value);
   }
 }

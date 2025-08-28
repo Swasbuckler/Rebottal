@@ -20,7 +20,7 @@ export const signUpFormSchema = z.object({
     .trim()
     .min(minUsernameLength, {error: 'Username must be at least 3 Characters'})
     .max(maxUsernameLength, {error: 'Username must not exceed 128 Characters'})
-    .refine((username) => !username.includes(' '), {error: 'Username must not include Spaces'}),
+    .refine((value) => !(/[^a-zA-Z0-9]/.test(value)), {error: 'Username must not include Special Characters'}),
   email: z
     .email({error: 'Please enter a valid Email'})
     .trim(),

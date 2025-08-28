@@ -1,7 +1,7 @@
 'use server';
 
 import { SignUpFormSchema, signUpFormSchema } from "../lib/definitions";
-import { CheckString, CreateUser } from "@rebottal/interfaces";
+import { CreateUser } from "@rebottal/interfaces";
 
 export async function signUp(formData: FormData) {
 
@@ -29,24 +29,6 @@ export async function signUp(formData: FormData) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(signUpData),
   });
-}
-
-export async function checkUsername(username: CheckString) {
-  const response = await fetch(process.env.BACKEND_URL! + '/users/check-username', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(username),
-  });
-  return await response.json();
-}
-
-export async function checkEmail(email: CheckString) {
-  const response = await fetch(process.env.BACKEND_URL! + '/users/check-email', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(email),
-  });
-  return await response.json();
 }
 
 export async function logIn(formData: FormData) {

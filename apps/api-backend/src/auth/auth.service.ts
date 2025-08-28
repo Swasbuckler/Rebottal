@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import bcrypt from 'bcrypt';
+import { LogInUserDto } from 'src/users/dto/log-in-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,5 +19,15 @@ export class AuthService {
       });
 
     await this.users.create(newUserData);
+    return {status: HttpStatus.OK};
+  }
+
+  async logIn(data: LogInUserDto) {
+    const user = await this.users.findUser(data.usernameOrEmail);
+
+    if (!(await bcrypt.compare(data.password, user?.password!))) {
+      throw new UnauthorizedException();
+    }
+
   }
 }
