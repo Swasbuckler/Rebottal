@@ -1,10 +1,10 @@
 export interface User {
-  id: string,
+  id: number,
+  uuid: string,
   createdAt: Date,
   username: string,
   email: string,
   password: string,
-  isVerified: boolean,
   isAdmin: boolean,
 };
 
