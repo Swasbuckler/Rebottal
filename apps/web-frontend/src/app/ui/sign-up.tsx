@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { signUp } from "../actions/auth";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
 import { passwordErrorsArray, signUpFormSchema, SignUpFormSchema } from "../lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounce } from "../lib/debounce";
+import { debounce, debounceBoolean } from "../lib/debounce";
 import { CheckValue } from "@rebottal/interfaces";
 
 export default function SignUpForm() {
@@ -41,6 +41,7 @@ export default function SignUpForm() {
         field="username"
         fieldLabel="Enter Username"
         register={register}
+        trigger={trigger}
         getValues={getValues}
         apiUrl={'check-username'}
         errors={errors}
@@ -52,6 +53,7 @@ export default function SignUpForm() {
         field="email"
         fieldLabel="Enter Email"
         register={register}
+        trigger={trigger}
         getValues={getValues}
         apiUrl={'check-email'}
         errors={errors}
@@ -74,6 +76,7 @@ function DebounceInput({
   field,
   fieldLabel,
   register, 
+  trigger,
   getValues,
   apiUrl,
   errors,
@@ -84,6 +87,7 @@ function DebounceInput({
   field: keyof SignUpFormSchema,
   fieldLabel: string,
   register: UseFormRegister<SignUpFormSchema>,
+  trigger: UseFormTrigger<SignUpFormSchema>,
   getValues: UseFormGetValues<SignUpFormSchema>,
   apiUrl: string,
   errors: FieldErrors<SignUpFormSchema>,
@@ -92,8 +96,7 @@ function DebounceInput({
 
   const [valueExists, setValueExists] = useState<ValueExists>(1);
 
-  const checkValueDebounce = async (value: string) => {
-    setValueExists(n => 2);
+  const checkValueDebounce = async (trigger: boolean, value: string) => {
 
     const checkValue: CheckValue = {value: value}
     const response = await fetch('/api/auth/' + apiUrl, {
@@ -103,10 +106,10 @@ function DebounceInput({
     })
     if (await response.json()) setValueExists(n => 1);
     else setValueExists(n => 0);
-  }
+  };
 
-  const debounceDelay = 500;
-  const valueDebounce = debounce(checkValueDebounce, debounceDelay);
+  const debounceDelay = 1000;
+  const valueDebounce = useCallback(debounceBoolean(checkValueDebounce, debounceDelay), []);
 
   const existSwitch = (valueExists: ValueExists) => {
     switch (valueExists) {
@@ -127,15 +130,17 @@ function DebounceInput({
       <input
         type={type}
         {...register(field, {
-          onChange: () => {
-            valueDebounce(getValues(field));
+          onChange: async () => {
+            setValueExists(n => 2);
+            const valid = await trigger(field);
+            valueDebounce(valid, getValues(field));
           }
         })}
         placeholder={placeholder}
         autoComplete="off"
       />
       <p className="text-red-500">{errors[field] && errors[field].message}</p>
-      <p>{touchedFields[field] && existSwitch(valueExists)}</p>
+      <p>{(touchedFields[field] && !errors[field]) && existSwitch(valueExists)}</p>
     </>
   );
 }
