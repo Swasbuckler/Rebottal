@@ -1,5 +1,19 @@
 import z from "zod";
 
+export type User = {
+  id: number,
+  uuid: string,
+  createdAt: Date,
+  username: string,
+  email: string,
+  password: string,
+  isAdmin: boolean,
+};
+
+export type CheckValue = {
+  value: any;
+}
+
 const minUsernameLength = 3;
 const maxUsernameLength = 128;
 const minPasswordLength = 12;
@@ -37,4 +51,22 @@ export const signUpFormSchema = z.object({
   path: ['confirm'], 
 });
 
-export type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
+export type SignUpUser = z.infer<typeof signUpFormSchema>;
+
+export const createUserSchema = z.object({
+  username: signUpFormSchema.shape.username,
+  email: signUpFormSchema.shape.email,
+  password: signUpFormSchema.shape.password,
+});
+
+export type CreateUser = z.infer<typeof createUserSchema>;
+
+export const logInFormSchema = z.object({
+  usernameOrEmail: z
+    .string()
+    .trim(),
+  password: z
+    .string(),
+});
+
+export type LogInUser = z.infer<typeof logInFormSchema>;

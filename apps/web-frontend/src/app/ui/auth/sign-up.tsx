@@ -1,12 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from "react";
-import { signUp } from "../actions/auth";
+import { signUp } from "../../actions/auth";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
-import { passwordErrorsArray, signUpFormSchema, SignUpFormSchema } from "../lib/definitions";
+import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "../../lib/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounce, debounceBoolean } from "../lib/debounce";
-import { CheckValue } from "@rebottal/interfaces";
+import { debounceBoolean } from "../../lib/debounce";
 
 export default function SignUpForm() {
   
@@ -16,13 +15,13 @@ export default function SignUpForm() {
     getValues,
     formState: {errors, isSubmitting, touchedFields},
     trigger,
-  } = useForm<SignUpFormSchema>({
+  } = useForm<SignUpUser>({
     resolver: zodResolver(signUpFormSchema),
     criteriaMode: 'all',
     mode: 'onChange'
   });
 
-  const submitSignUp: SubmitHandler<SignUpFormSchema> = async (data) => {
+  const submitSignUp: SubmitHandler<SignUpUser> = async (data) => {
     const formData = new FormData();
     Object.keys(data).forEach((field) => {
       formData.append(field, data[field as keyof typeof data])
@@ -84,13 +83,13 @@ function DebounceInput({
 }: {
   type: string,
   placeholder: string,
-  field: keyof SignUpFormSchema,
+  field: keyof SignUpUser,
   fieldLabel: string,
-  register: UseFormRegister<SignUpFormSchema>,
-  trigger: UseFormTrigger<SignUpFormSchema>,
-  getValues: UseFormGetValues<SignUpFormSchema>,
+  register: UseFormRegister<SignUpUser>,
+  trigger: UseFormTrigger<SignUpUser>,
+  getValues: UseFormGetValues<SignUpUser>,
   apiUrl: string,
-  errors: FieldErrors<SignUpFormSchema>,
+  errors: FieldErrors<SignUpUser>,
   touchedFields: Partial<Readonly<any>>
 }) {
 
@@ -150,9 +149,9 @@ function PasswordInput({
   trigger,
   errors,
 }: {
-  register: UseFormRegister<SignUpFormSchema>,
-  trigger: UseFormTrigger<SignUpFormSchema>,
-  errors: FieldErrors<SignUpFormSchema>,
+  register: UseFormRegister<SignUpUser>,
+  trigger: UseFormTrigger<SignUpUser>,
+  errors: FieldErrors<SignUpUser>,
 }) {
 
   const [errorArray, setErrorArray] = useState<string[]>(passwordErrorsArray);

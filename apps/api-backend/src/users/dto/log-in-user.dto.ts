@@ -1,10 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { LogInUser } from "@rebottal/interfaces";
+import { logInFormSchema } from "../../validation/validation-definitions";
+import { createZodDto } from "nestjs-zod";
 
-export class LogInUserDto implements LogInUser {
-  @ApiProperty({required: true})
-  usernameOrEmail: string;
-
-  @ApiProperty({required: true})
-  password: string;
-}
+export class LogInUserDto extends createZodDto(logInFormSchema) {}

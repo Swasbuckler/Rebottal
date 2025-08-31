@@ -1,13 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { CreateUser } from "@rebottal/interfaces";
+import { createUserSchema } from "../../validation/validation-definitions";
+import { createZodDto } from "nestjs-zod";
 
-export class CreateUserDto implements CreateUser {
-  @ApiProperty({required: true})
-  username: string;
-
-  @ApiProperty({required: true})
-  email: string;
-
-  @ApiProperty({required: true})
-  password: string;
-}
+export class CreateUserDto extends createZodDto(createUserSchema) {}

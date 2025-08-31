@@ -6,6 +6,11 @@ import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception/pr
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+
   const config = new DocumentBuilder()
     .setTitle('Swagger')
     .setDescription('To test and observe APIs')

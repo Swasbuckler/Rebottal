@@ -24,10 +24,15 @@ export class AuthService {
 
   async logIn(data: LogInUserDto) {
     const user = await this.users.findUser(data.usernameOrEmail);
-
+    
+    if (!user) {
+      throw new UnauthorizedException();
+    }
     if (!(await bcrypt.compare(data.password, user?.password!))) {
       throw new UnauthorizedException();
     }
+
+    const {password, ...result} = user!;
 
   }
 }

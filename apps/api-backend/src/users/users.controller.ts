@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '@rebottal/interfaces';
+import { User } from '../validation/validation-definitions';
 import { CheckValueDto } from './dto/check-value.dto';
 
 @Controller('users')

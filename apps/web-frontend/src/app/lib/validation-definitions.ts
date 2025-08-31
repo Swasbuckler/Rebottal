@@ -51,7 +51,7 @@ export const signUpFormSchema = z.object({
   path: ['confirm'], 
 });
 
-export type SignUpFormSchema = z.infer<typeof signUpFormSchema>;
+export type SignUpUser = z.infer<typeof signUpFormSchema>;
 
 export const createUserSchema = z.object({
   username: signUpFormSchema.shape.username,
