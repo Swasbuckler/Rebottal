@@ -1,7 +1,7 @@
 'use client';
 
 import { SubmitHandler, useForm, UseFormRegister } from "react-hook-form";
-import { logInFormSchema, LogInUser } from "../../lib/validation-definitions";
+import { logInFormSchema, LogInUser } from "@rebottal/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { logIn } from "../../actions/auth";
 import { useState } from "react";

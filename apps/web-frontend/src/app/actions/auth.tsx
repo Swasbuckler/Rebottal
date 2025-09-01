@@ -1,6 +1,6 @@
 'use server';
 
-import { logInFormSchema, LogInUser, SignUpUser, signUpFormSchema, CreateUser } from "../lib/validation-definitions";
+import { logInFormSchema, LogInUser, SignUpUser, signUpFormSchema, CreateUser } from "@rebottal/validation-definitions";
 
 export async function signUp(formData: FormData) {
 

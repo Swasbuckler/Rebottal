@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { CheckValue } from "../../validation/validation-definitions";
+import { CheckValue } from "@rebottal/validation-definitions";
 
 export class CheckValueDto implements CheckValue {
   @ApiProperty({required: true})

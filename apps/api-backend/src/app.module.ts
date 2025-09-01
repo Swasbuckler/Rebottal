@@ -14,7 +14,6 @@ const MyZodValidationPipe = createZodValidationPipe({
 })
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule],
   controllers: [AppController],
   providers: [
     AppService,
@@ -23,5 +22,6 @@ const MyZodValidationPipe = createZodValidationPipe({
       useClass: MyZodValidationPipe
     }
   ],
+  imports: [PrismaModule, UsersModule, AuthModule],
 })
 export class AppModule {}

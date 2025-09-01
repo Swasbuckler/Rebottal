@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { signUp } from "../../actions/auth";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
-import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "../../lib/validation-definitions";
+import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "@rebottal/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceBoolean } from "../../lib/debounce";
 

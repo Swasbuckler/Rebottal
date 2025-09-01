@@ -2,9 +2,12 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception/prisma-client-exception.filter';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: process.env.FRONTEND_URL,

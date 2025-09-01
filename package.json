@@ -13,7 +13,8 @@
   "scripts": {
     "dev:web": "npm run dev --workspace=@rebottal/web-frontend",
     "dev:api": "npm run start:dev --workspace=@rebottal/api-backend",
-    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\""
+    "dev:validation-definitions": "npm run dev --workspace=@rebottal/validation-definitions",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:validation-definitions\""
   },
   "dependencies": {
     "zod": "^4.1.5"
