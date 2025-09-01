@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "public"."Users" ADD COLUMN     "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP;

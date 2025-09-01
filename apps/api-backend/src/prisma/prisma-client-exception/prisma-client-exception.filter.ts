@@ -21,6 +21,10 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
         break;
       }
       default:
+        response.status(200).json({
+          statusCode: 200,
+          message: exception.message
+        });
         super.catch(exception, host);
         break;
     }

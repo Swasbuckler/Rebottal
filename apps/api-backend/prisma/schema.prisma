@@ -14,11 +14,13 @@ datasource db {
 }
 
 model Users {
-  id          Int       @default(autoincrement()) @id
-  uuid        String    @default(uuid()) @unique @db.Uuid
-  createdAt   DateTime  @default(now()) @db.Timestamptz()
-  username    String    @unique @db.VarChar(128)
-  email       String    @unique 
-  password    String    
-  isAdmin     Boolean   @default(false)
+  id            Int       @default(autoincrement()) @id
+  uuid          String    @default(uuid()) @unique @db.Uuid
+  createdAt     DateTime  @default(now()) @db.Timestamptz()
+  updatedAt     DateTime  @default(now()) @db.Timestamptz()
+  refreshToken  String?    
+  username      String    @unique @db.VarChar(128)
+  email         String    @unique 
+  password      String    
+  isAdmin       Boolean   @default(false)
 }
