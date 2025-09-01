@@ -1,0 +1,14 @@
+{
+  "display": "Validation Definitions",
+  "extends": "@rebottal/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2015"],
+    "module": "ESNext",
+    "target": "ES6",
+    "outDir": "dist",
+    "rootDir": "src",
+    "moduleResolution": "bundler"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

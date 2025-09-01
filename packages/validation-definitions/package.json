@@ -1,0 +1,15 @@
+{
+  "name": "@rebottal/validation-definitions",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc --build"
+  },
+  "exports": {
+    ".": "./dist/definitions.js"
+  }
+}
