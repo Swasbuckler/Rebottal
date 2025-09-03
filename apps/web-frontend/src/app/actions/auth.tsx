@@ -1,6 +1,7 @@
 'use server';
 
 import { logInFormSchema, LogInUser, SignUpUser, signUpFormSchema, CreateUser } from "@rebottal/validation-definitions";
+import { cookies } from "next/headers";
 
 export async function signUp(formData: FormData) {
 
@@ -53,5 +54,12 @@ export async function logIn(formData: FormData) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify(logInData),
   });
+  const cookieStore = await cookies();
+  cookieStore.set('test', 'test', {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(Date.now() + 10000000)
+  })
+  console.log(response.headers.getSetCookie())
   return await response.json();
 }

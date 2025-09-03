@@ -6,6 +6,7 @@ import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister,
 import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "@rebottal/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceBoolean } from "../../lib/debounce";
+import axios from "axios";
 
 export default function SignUpForm() {
   
@@ -26,7 +27,11 @@ export default function SignUpForm() {
     Object.keys(data).forEach((field) => {
       formData.append(field, data[field as keyof typeof data])
     });
-    await signUp(formData);
+    
+    await axios.post(
+      '/api/auth/sign-up', 
+      formData
+    );
   }
   
   return (
@@ -42,7 +47,7 @@ export default function SignUpForm() {
         register={register}
         trigger={trigger}
         getValues={getValues}
-        apiUrl={'check-username'}
+        apiUrl={'check/username'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -54,7 +59,7 @@ export default function SignUpForm() {
         register={register}
         trigger={trigger}
         getValues={getValues}
-        apiUrl={'check-email'}
+        apiUrl={'check/email'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -98,12 +103,12 @@ function DebounceInput({
   const checkValueDebounce = async (trigger: boolean, value: string) => {
 
     const checkValue: CheckValue = {value: value}
-    const response = await fetch('/api/auth/' + apiUrl, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(checkValue),
-    })
-    if (await response.json()) setValueExists(n => 1);
+    const response = await axios.post(
+      '/api/auth/' + apiUrl, 
+      checkValue
+    );
+
+    if (await response.data) setValueExists(n => 1);
     else setValueExists(n => 0);
   };
 

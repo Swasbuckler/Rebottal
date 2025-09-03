@@ -5,12 +5,20 @@ import { AuthService } from "../auth.service";
 import { LogInUserDto } from "src/users/dto/log-in-user.dto";
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private auth: AuthService) {
-    super();
+    super({
+      usernameField: 'usernameOrEmail'
+    });
   }
 
-  async validate(data: LogInUserDto) {
-    return await this.auth.validateUser(data);
+  async validate(usernameOrEmail: string, password: string) {
+    const data: LogInUserDto = {
+      usernameOrEmail, 
+      password
+    };
+
+    const user = await this.auth.validateUser(data);
+    return user;
   }
 }

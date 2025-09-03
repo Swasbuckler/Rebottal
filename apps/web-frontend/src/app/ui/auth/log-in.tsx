@@ -5,6 +5,7 @@ import { logInFormSchema, LogInUser } from "@rebottal/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { logIn } from "../../actions/auth";
 import { useState } from "react";
+import axios from "axios";
 
 export default function LogInForm() {
   
@@ -21,7 +22,11 @@ export default function LogInForm() {
     Object.keys(data).forEach((field) => {
       formData.append(field, data[field as keyof typeof data])
     });
-    await logIn(formData);
+    
+    await axios.post(
+      '/api/auth/log-in', 
+      formData
+    );
   }
 
   return (

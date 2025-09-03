@@ -20,8 +20,8 @@ export class UsersController {
     return await this.usersService.findAllUsers();
   }
 
-  @Get(':uuid')
   @UseGuards(JwtAuthGuard)
+  @Get(':uuid')
   async findUserByUuid(@Param('uuid') uuid: string): Promise<User | null> {
     return await this.usersService.findUserByUuid(uuid);
   }

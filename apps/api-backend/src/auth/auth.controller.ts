@@ -7,7 +7,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { type User } from '@rebottal/validation-definitions';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -17,38 +17,27 @@ export class AuthController {
     return await this.authService.signUp(inputData);
   }
 
-  @Post('log-in')
   @UseGuards(LocalAuthGuard)
-  async logIn(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    const {userData, accessToken, accessTokenExpiration, refreshToken, refreshTokenExpiration} = await this.authService.logIn(user);
-
-    response.cookie('AccessToken', accessToken, {
-      httpOnly: true,
-      secure: true,
-      expires: accessTokenExpiration
-    });
-
-    response.cookie('RefreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: refreshTokenExpiration
-    });
-
-    return response.status(HttpStatus.OK).json({
-      data: userData,
-      message: 'Logged In'
-    });
+  @Post('log-in')
+  async logIn(@Body() data: LogInUserDto, @CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
+    return await this.authService.logInAndPassCookies(user, response);
   }
 
-  @Post('log-out')
+  @UseGuards(JwtRefreshAuthGuard)
+  @Post('refresh')
+  async refresh(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
+    return await this.authService.logInAndPassCookies(user, response);
+  }
+
   @UseGuards(JwtAuthGuard)
+  @Post('log-out')
   async logOut(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
     await this.authService.logOut(user);
 
     response.clearCookie('AccessToken');
     response.clearCookie('RefreshToken');
 
-    return response.status(HttpStatus.OK).json({
+    response.status(HttpStatus.OK).json({
       message: 'Logged Out'
     });
   }
