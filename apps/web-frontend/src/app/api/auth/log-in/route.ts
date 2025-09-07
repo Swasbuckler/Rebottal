@@ -1,5 +1,7 @@
-import { CreateUser, LogInUser, logInFormSchema } from "@rebottal/validation-definitions";
+import { parseCookie } from "@/app/lib/utils/cookie-parser";
+import { LogInUser, logInFormSchema } from "@rebottal/validation-definitions";
 import axios from "axios";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -26,9 +28,18 @@ export async function POST(request: NextRequest) {
     logInData
   );
 
-  const nextRes = new Response(response.data);
-  response.headers["set-cookie"]!.forEach((cookieString: string) => {
-    nextRes.headers.append('set-cookie', cookieString);
+  const cookieStore = await cookies();
+
+  response.headers['set-cookie']!.forEach((cookieString: string) => {
+    const parsedCookie = parseCookie(cookieString);
+    
+    cookieStore.set({
+      name: parsedCookie.name,
+      value: parsedCookie.value,
+      httpOnly: parsedCookie.httpOnly,
+      secure: parsedCookie.secure,
+      expires: parsedCookie.expires
+    });
   });
-  return nextRes;
+  return new Response(response.data);
 }

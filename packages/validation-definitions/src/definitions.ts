@@ -72,3 +72,16 @@ export const logInFormSchema = z.object({
 });
 
 export type LogInUser = z.infer<typeof logInFormSchema>;
+
+export type CookieAttributes = {
+  name: string,
+  value: string,
+  domain?: string,
+  expires?: Date | number,
+  httpOnly?: boolean,
+  maxAge?: number,
+  partitioned?: boolean,
+  path?: string,
+  sameSite?: string,
+  secure?: boolean
+};

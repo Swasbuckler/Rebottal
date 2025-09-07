@@ -1,20 +1,24 @@
-import axios from "axios";
+import axiosInstance from "@/app/lib/auth/axios-instance";
+import { parseCookie } from "@/app/lib/utils/cookie-parser";
+import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const response = await axios.post(
-    process.env.BACKEND_URL! + '/auth/log-out', 
-    {},
-    {
-      headers: {
-        'cookie': request.headers.get('cookie')
-      }
-    }
+  const response = await axiosInstance.post(
+    '/auth/log-out'
   );
   
-  const nextRes = new Response(response.data);
-  response.headers["set-cookie"]!.forEach((cookieString: string) => {
-    nextRes.headers.append('set-cookie', cookieString);
+  const cookieStore = await cookies();
+  
+  response.headers['set-cookie']!.forEach((cookieString: string) => {
+    const parsedCookie = parseCookie(cookieString);
+      
+    cookieStore.set({
+      name: parsedCookie.name,
+      value: parsedCookie.value,
+      expires: parsedCookie.expires
+    });
   });
-  return nextRes;
+
+  return new Response(response.data);
 }

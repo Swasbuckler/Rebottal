@@ -1,11 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from "react";
-import { signUp } from "../../actions/auth";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
 import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "@rebottal/validation-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounceBoolean } from "../../lib/debounce";
+import { debounceTrigger } from "../../lib/utils/debounce";
 import axios from "axios";
 
 export default function SignUpForm() {
@@ -113,7 +112,7 @@ function DebounceInput({
   };
 
   const debounceDelay = 1000;
-  const valueDebounce = useCallback(debounceBoolean(checkValueDebounce, debounceDelay), []);
+  const valueDebounce = useCallback(debounceTrigger(checkValueDebounce, debounceDelay), []);
 
   const existSwitch = (valueExists: ValueExists) => {
     switch (valueExists) {

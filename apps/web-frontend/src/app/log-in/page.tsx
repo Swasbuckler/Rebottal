@@ -7,13 +7,8 @@ export default function LogIn() {
 
   const logout = async () => {
     const response = await axios.post(
-      '/api/auth/log-out', 
-      {},
-      {
-        withCredentials: true,
-      }
+      '/api/auth/log-out'
     );
-    console.log(response)
   }
 
   return (

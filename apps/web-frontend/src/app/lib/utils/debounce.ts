@@ -6,7 +6,7 @@ export function debounce(fn: (...args: any[]) => any, delay: number) {
   };
 }
 
-export function debounceBoolean(fn: (trigger: boolean, ...args: any[]) => any, delay: number) {
+export function debounceTrigger(fn: (trigger: boolean, ...args: any[]) => any, delay: number) {
   let timeoutId: NodeJS.Timeout;
   return (trigger: boolean, ...args: any[]) => {
     if (timeoutId) clearTimeout(timeoutId);

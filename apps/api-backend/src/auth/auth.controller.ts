@@ -20,13 +20,13 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
   async logIn(@Body() data: LogInUserDto, @CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    return await this.authService.logInAndPassCookies(user, response);
+    await this.authService.logInAndPassCookies(user, response);
   }
 
   @UseGuards(JwtRefreshAuthGuard)
   @Post('refresh')
   async refresh(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    return await this.authService.logInAndPassCookies(user, response);
+    await this.authService.logInAndPassCookies(user, response);
   }
 
   @UseGuards(JwtAuthGuard)
