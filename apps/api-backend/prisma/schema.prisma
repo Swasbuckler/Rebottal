@@ -13,14 +13,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
+model User {
+  uuid          String          @default(uuid()) @id @unique @db.Uuid
+  createdAt     DateTime        @default(now()) @db.Timestamptz()
+  username      String          @unique @db.VarChar(128)
+  email         String          @unique @db.VarChar(320)
+  password      String          @db.VarChar(128)
+  role          Role            @default(USER)
+  refreshTokens RefreshToken[]    
+}
+
+model RefreshToken {
   id            Int       @default(autoincrement()) @id
-  uuid          String    @default(uuid()) @unique @db.Uuid
-  createdAt     DateTime  @default(now()) @db.Timestamptz()
-  updatedAt     DateTime  @default(now()) @db.Timestamptz()
-  refreshToken  String?    
-  username      String    @unique @db.VarChar(128)
-  email         String    @unique 
-  password      String    
-  isAdmin       Boolean   @default(false)
+  user          User      @relation(fields: [userUuid], references: [uuid], onDelete: Cascade, onUpdate: Cascade)
+  userUuid      String    @db.Uuid
+  sub           String    @db.Uuid @unique
+  token         String    
+  rememberMe    Boolean   @default(false)
+  accessedAt    DateTime  @db.Timestamptz()
+  expiresAt     DateTime  @db.Timestamptz()
+}
+
+enum Role {
+  USER
+  ADMIN_LEVEL_1
+  ADMIN_LEVEL_2
 }

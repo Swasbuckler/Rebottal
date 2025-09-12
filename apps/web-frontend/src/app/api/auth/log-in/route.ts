@@ -1,5 +1,5 @@
 import { parseCookie } from "@/app/lib/utils/cookie-parser";
-import { LogInUser, logInFormSchema } from "@rebottal/validation-definitions";
+import { LogInUser, logInFormSchema } from "@rebottal/app-definitions";
 import axios from "axios";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
   const rawInput: LogInUser = {
     usernameOrEmail: formData.get('usernameOrEmail') as string,
     password: formData.get('password') as string,
+    rememberMe: formData.get('rememberMe') == 'true' ? true : false,
   };
 
   const validatedFields = logInFormSchema.safeParse(rawInput);
@@ -21,6 +22,7 @@ export async function POST(request: NextRequest) {
   const logInData: LogInUser = {
     usernameOrEmail: validatedFields.data.usernameOrEmail,
     password: validatedFields.data.password,
+    rememberMe: validatedFields.data.rememberMe
   };
   
   const response = await axios.post(

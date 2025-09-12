@@ -1,5 +1,5 @@
 {
-  "name": "@rebottal/validation-definitions",
+  "name": "@rebottal/app-definitions",
   "version": "1.0.0",
   "private": true,
   "main": "./index.ts",

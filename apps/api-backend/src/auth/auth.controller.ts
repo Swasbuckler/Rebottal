@@ -1,13 +1,15 @@
 import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { LogInUserDto } from 'src/users/dto/log-in-user.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
 import { type Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
-import { type User } from '@rebottal/validation-definitions';
+import { type RefreshToken, type User } from '@rebottal/app-definitions';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
+import { CurrentSub } from './current-sub.decorator';
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -20,20 +22,20 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
   async logIn(@Body() data: LogInUserDto, @CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    await this.authService.logInAndPassCookies(user, response);
+    await this.authService.logInAndPassCookies(user, Boolean(data.rememberMe), response);
   }
 
   @UseGuards(JwtRefreshAuthGuard)
   @Post('refresh')
-  async refresh(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    await this.authService.logInAndPassCookies(user, response);
+  async refresh(@CurrentUser() user: User, @CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
+    await this.authService.refreshAndPassCookies(user, sub, response);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('log-out')
-  async logOut(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    await this.authService.logOut(user);
-
+  async logOut(@CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
+    await this.authService.logOut(sub);
+    
     response.clearCookie('AccessToken');
     response.clearCookie('RefreshToken');
 

@@ -13,13 +13,13 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(async (request) => {
   const cookieStore = await cookies();
+  
   const accessTokenCookie = cookieStore.get('AccessToken');
-
   if (accessTokenCookie) {
     const cookieString = `${accessTokenCookie.name}=${accessTokenCookie.value};`;
     request.headers.set('cookie', cookieString);
   }
-
+  
   return request;
 }, (error) => {
   return Promise.reject(error);

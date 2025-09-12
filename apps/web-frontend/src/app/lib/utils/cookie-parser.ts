@@ -1,4 +1,4 @@
-import { CookieAttributes } from "@rebottal/validation-definitions";
+import { CookieAttributes } from "@rebottal/app-definitions";
 
 export function parseCookie(cookieString: string) {
 

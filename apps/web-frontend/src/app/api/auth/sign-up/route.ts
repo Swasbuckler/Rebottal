@@ -1,4 +1,4 @@
-import { CreateUser, signUpFormSchema, SignUpUser } from "@rebottal/validation-definitions";
+import { CreateUser, signUpFormSchema, SignUpUser } from "@rebottal/app-definitions";
 import axios from "axios";
 import { NextRequest } from "next/server";
 

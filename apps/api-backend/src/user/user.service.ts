@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '@rebottal/validation-definitions';
+import { User } from '@rebottal/app-definitions';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
-export class UsersService {
-  constructor(private prisma: PrismaService) {}
+export class UserService {
+  constructor(private prismaService: PrismaService) {}
 
   private readonly saltRounds = 10;
 
@@ -17,15 +17,15 @@ export class UsersService {
     const hash = await bcrypt.hash(data.password, this.saltRounds)
     newUserData.password = hash;
 
-    return await this.prisma.users.create({data: newUserData});
+    return await this.prismaService.user.create({data: newUserData});
   }
 
   async findAllUsers(): Promise<User[]> {
-    return await this.prisma.users.findMany();
+    return await this.prismaService.user.findMany();
   }
 
   async findUserByUuid(uuid: string): Promise<User | null> {
-    return await this.prisma.users.findUnique({
+    return await this.prismaService.user.findUnique({
       where: {
         uuid
       }
@@ -33,7 +33,7 @@ export class UsersService {
   }
 
   async findUser(usernameOrEmail: string): Promise<User | null> {
-    return await this.prisma.users.findFirst({
+    return await this.prismaService.user.findFirst({
       where: {
         OR: [
           {username: usernameOrEmail},
@@ -50,13 +50,8 @@ export class UsersService {
       const hash = await bcrypt.hash(newUserData.password, this.saltRounds)
       newUserData.password = hash;
     }
-
-    if (newUserData.refreshToken) {
-      const hash = await bcrypt.hash(newUserData.refreshToken, this.saltRounds)
-      newUserData.refreshToken = hash;
-    }
-
-    return await this.prisma.users.update({
+    
+    return await this.prismaService.user.update({
       data: newUserData,
       where: {
         uuid
@@ -65,7 +60,7 @@ export class UsersService {
   }
 
   async deleteUser(uuid: string): Promise<User> {
-    return await this.prisma.users.delete({
+    return await this.prismaService.user.delete({
       where: {
         uuid
       }
@@ -73,18 +68,24 @@ export class UsersService {
   }
 
   async doesUsernameExists(username: string): Promise<boolean> {
-    return Boolean(await this.prisma.users.count({
+    const user = await this.prismaService.user.findUnique({
       where: {
         username
       }
-    }));
+    });
+
+    if (user) return true;
+    else return false;
   }
 
   async doesEmailExists(email: string): Promise<boolean> {
-    return Boolean(await this.prisma.users.count({
+    const user = await this.prismaService.user.findUnique({
       where: {
         email
       }
-    }));
+    });
+
+    if (user) return true;
+    else return false;
   }
 }

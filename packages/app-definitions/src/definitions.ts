@@ -1,20 +1,8 @@
+/*
+*   Definitions for Auth
+*/
+
 import z from "zod";
-
-export type User = {
-  id: number,
-  uuid: string,
-  createdAt: Date,
-  updatedAt: Date,
-  refreshToken: string | null,
-  username: string,
-  email: string,
-  password: string,
-  isAdmin: boolean,
-};
-
-export type CheckValue = {
-  value: any;
-}
 
 const minUsernameLength = 3;
 const maxUsernameLength = 128;
@@ -69,9 +57,15 @@ export const logInFormSchema = z.object({
     .trim(),
   password: z
     .string(),
+  rememberMe: z
+    .boolean()
 });
 
 export type LogInUser = z.infer<typeof logInFormSchema>;
+
+export type CheckData = {
+  value: string;
+}
 
 export type CookieAttributes = {
   name: string,
@@ -84,4 +78,48 @@ export type CookieAttributes = {
   path?: string,
   sameSite?: string,
   secure?: boolean
+};
+
+/*
+*   Definitions for User Table
+*/
+
+export type User = {
+  uuid: string,
+  createdAt: Date,
+  username: string,
+  email: string,
+  password: string,
+  role: Role,
+};
+
+export type Role = 'USER' | 'ADMIN_LEVEL_1' | 'ADMIN_LEVEL_2';
+
+/*
+*   Definitions for Refresh Token Table
+*/
+
+export const createRefreshTokenSchema = z.object({
+  userUuid: z
+    .uuid(),
+  sub: z
+    .uuid(),
+  token: z
+    .string(),
+  rememberMe: z
+    .boolean(),
+  accessedAt: z
+    .iso.datetime(),
+  expiresAt: z
+    .iso.datetime() 
+});
+
+export type RefreshToken = {
+  id: number,
+  userUuid: string,
+  sub: string,
+  token: string,
+  rememberMe: boolean,
+  accessedAt: Date,
+  expiresAt: Date,
 };

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
-import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckValue } from "@rebottal/validation-definitions";
+import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckData } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceTrigger } from "../../lib/utils/debounce";
 import axios from "axios";
@@ -99,12 +99,12 @@ function DebounceInput({
 
   const [valueExists, setValueExists] = useState<ValueExists>(1);
 
-  const checkValueDebounce = async (trigger: boolean, value: string) => {
+  const checkDataDebounce = async (trigger: boolean, value: string) => {
 
-    const checkValue: CheckValue = {value: value}
+    const checkData: CheckData = {value: value}
     const response = await axios.post(
       '/api/auth/' + apiUrl, 
-      checkValue
+      checkData
     );
 
     if (await response.data) setValueExists(n => 1);
@@ -112,7 +112,7 @@ function DebounceInput({
   };
 
   const debounceDelay = 1000;
-  const valueDebounce = useCallback(debounceTrigger(checkValueDebounce, debounceDelay), []);
+  const valueDebounce = useCallback(debounceTrigger(checkDataDebounce, debounceDelay), []);
 
   const existSwitch = (valueExists: ValueExists) => {
     switch (valueExists) {

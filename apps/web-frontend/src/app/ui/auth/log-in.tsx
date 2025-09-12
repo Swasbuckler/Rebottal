@@ -1,7 +1,7 @@
 'use client';
 
 import { SubmitHandler, useForm, UseFormRegister } from "react-hook-form";
-import { logInFormSchema, LogInUser } from "@rebottal/validation-definitions";
+import { logInFormSchema, LogInUser } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
@@ -18,10 +18,10 @@ export default function LogInForm() {
 
   const submitLogIn: SubmitHandler<LogInUser> = async (data) => {
     const formData = new FormData();
-    Object.keys(data).forEach((field) => {
-      formData.append(field, data[field as keyof typeof data])
+    Object.entries(data).forEach(([field, value]) => {
+      formData.append(field, value.toString())
     });
-    
+
     await axios.post(
       '/api/auth/log-in', 
       formData
@@ -35,6 +35,7 @@ export default function LogInForm() {
     >
       <UsernameOrEmailInput register={register} />
       <PasswordInput register={register} />
+      <RememberMeInput register={register} />
       <button type="submit">{!isSubmitting ? 'Log In' : 'Processing'}</button>
       <input type="submit" hidden />
     </form>
@@ -78,6 +79,23 @@ function PasswordInput({
         autoComplete="off"
       />
       <button type="button" onClick={() => setPasswordVisibility(!passwordVisibility)}>Reveal</button>
+    </>
+  );
+}
+
+function RememberMeInput({
+  register,
+}: {
+  register: UseFormRegister<LogInUser>,
+}) {
+
+  return (
+    <>
+      <label htmlFor="rememberMe">Remember Me?</label>
+      <input 
+        type="checkbox" 
+        {...register('rememberMe')}
+      />
     </>
   );
 }
