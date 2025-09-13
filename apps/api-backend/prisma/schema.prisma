@@ -19,8 +19,10 @@ model User {
   username      String          @unique @db.VarChar(128)
   email         String          @unique @db.VarChar(320)
   password      String          @db.VarChar(128)
+  verified      Boolean         @default(false)
   role          Role            @default(USER)
   refreshTokens RefreshToken[]    
+  otps          OTP[]
 }
 
 model RefreshToken {
@@ -34,8 +36,23 @@ model RefreshToken {
   expiresAt     DateTime  @db.Timestamptz()
 }
 
+model OTP {
+  id            Int       @default(autoincrement()) @id
+  user          User      @relation(fields: [userUuid], references: [uuid], onDelete: Cascade, onUpdate: Cascade)
+  userUuid      String    @db.Uuid
+  code          String    @db.VarChar(6)
+  purpose       Purpose
+  createdAt     DateTime  @default(now()) @db.Timestamptz()
+  expiresAt     DateTime  @db.Timestamptz()
+}
+
 enum Role {
   USER
   ADMIN_LEVEL_1
   ADMIN_LEVEL_2
+}
+
+enum Purpose {
+  VERIFICATION
+  PASSWORD_RESET
 }

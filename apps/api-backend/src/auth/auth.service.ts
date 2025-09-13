@@ -4,30 +4,35 @@ import { UserService } from 'src/user/user.service';
 import bcrypt from 'bcrypt';
 import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshToken, User } from '@rebottal/app-definitions';
+import { OTP, RefreshToken, User } from '@rebottal/app-definitions';
 import { Response } from 'express';
 import { RefreshTokenService } from 'src/refresh-token/refresh-token.service';
+import { OtpService } from 'src/otp/otp.service';
+import { MailerService } from 'src/mailer/mailer.service';
+import { CreateOtpDto } from 'src/otp/dto/create-otp.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private refreshTokenService: RefreshTokenService,
+    private otpService: OtpService,
+    private mailerService: MailerService,
     private jwt: JwtService
   ) {}
 
   private readonly maxRememberMeRefreshTokens = 5;
   private readonly maxNotRememberMeRefreshTokens = 15;
+  private readonly otpDuration = 300000;
 
   async signUp(data: CreateUserDto) {
     await this.userService.createUser(data);
-    return {status: HttpStatus.OK};
   }
 
   async getJwtTokens(uuid: string) {
     let randomUuid = crypto.randomUUID();
 
-    while (await this.refreshTokenService.doesSubExists(randomUuid)) {
+    while (await this.refreshTokenService.findRefreshTokenBySub(randomUuid)) {
       randomUuid = crypto.randomUUID();
     }
 
@@ -117,12 +122,14 @@ export class AuthService {
     response.cookie('AccessToken', accessToken, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
       expires: accessTokenExpiration
     });
     
     response.cookie('RefreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
       expires: refreshTokenExpiration
     });
 
@@ -151,7 +158,7 @@ export class AuthService {
     }
 
     const refreshToken = await this.refreshTokenService.findRefreshTokenBySub(payload.sub);
-    if (!refreshToken) {
+    if (!refreshToken || refreshToken.expiresAt < (new Date(Date.now()))) {
       throw new UnauthorizedException();
     }
 
@@ -175,5 +182,44 @@ export class AuthService {
 
   async logOut(sub: string) {
     await this.refreshTokenService.deleteRefreshToken(sub);
+  }
+
+  async requestVerification(user: User) {
+    const otpCode = await this.mailerService.generateOTP(6);
+
+    const otpData: CreateOtpDto = {
+      userUuid: user.uuid,
+      code: otpCode,
+      purpose: 'VERIFICATION',
+      createdAt: new Date(Date.now()).toISOString(),
+      expiresAt: new Date(Date.now() + this.otpDuration).toISOString()
+    }
+
+    const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
+    if (!otp) {
+      this.otpService.createOTP(otpData);
+    } else {
+      this.otpService.updateOTPById(otp.id, otpData);
+    }
+
+    await this.mailerService.sendOTPEmail(user.email, otpCode);
+  }
+
+  async submitVerification(user: User, otpSubmission: string) {
+    const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
+    if (!otp) {
+      throw new UnauthorizedException();
+    }
+
+    if (otp.expiresAt < (new Date(Date.now()))) {
+      throw new ConflictException();
+    }
+    if (otp.code != otpSubmission) {
+      throw new ConflictException();
+    }
+
+    await this.userService.updateUser(user.uuid, {
+      verified: true
+    });
   }
 }

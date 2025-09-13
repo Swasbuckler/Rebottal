@@ -90,6 +90,7 @@ export type User = {
   username: string,
   email: string,
   password: string,
+  verified: boolean,
   role: Role,
 };
 
@@ -123,3 +124,34 @@ export type RefreshToken = {
   accessedAt: Date,
   expiresAt: Date,
 };
+
+/*
+*   Definitions for OTP Table
+*/
+
+const purposeValues = ['VERIFICATION', 'PASSWORD_RESET'] as const;
+
+export const createOTPSchema = z.object({
+  userUuid: z
+    .uuid(),
+  code: z
+    .string()
+    .max(6),
+  purpose: z
+    .enum(purposeValues),
+  createdAt: z
+    .iso.datetime(),
+  expiresAt: z
+    .iso.datetime() 
+});
+
+export type OTP = {
+  id: number,
+  userUuid: string,
+  code: string,
+  purpose: Purpose
+  createdAt: Date, 
+  expiresAt: Date,
+};
+
+export type Purpose = typeof purposeValues[number];

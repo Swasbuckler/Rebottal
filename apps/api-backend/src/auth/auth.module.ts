@@ -8,6 +8,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
+import { MailerModule } from 'src/mailer/mailer.module';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   controllers: [AuthController],
@@ -20,6 +22,8 @@ import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
   imports: [
     UserModule,
     RefreshTokenModule,
+    OtpModule,
+    MailerModule,
     PassportModule,
     JwtModule
   ]

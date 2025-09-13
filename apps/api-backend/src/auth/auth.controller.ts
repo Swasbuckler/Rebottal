@@ -18,7 +18,8 @@ export class AuthController {
   @Throttle({default: {limit: 3, ttl: 1000}})
   @Post('sign-up')
   async signUp(@Body() inputData: CreateUserDto) {
-    return await this.authService.signUp(inputData);
+    await this.authService.signUp(inputData);
+    return {status: HttpStatus.OK};
   }
 
   @Throttle({default: {limit: 10, ttl: 1000}})
@@ -46,5 +47,21 @@ export class AuthController {
     response.status(HttpStatus.OK).json({
       message: 'Logged Out'
     });
+  }
+
+  @Throttle({default: {limit: 3, ttl: 1000}})
+  @UseGuards(JwtAuthGuard)
+  @Post('verification')
+  async requestVerification(@CurrentUser() user: User) {
+    await this.authService.requestVerification(user);
+    return {status: HttpStatus.OK};
+  }
+
+  @Throttle({default: {limit: 3, ttl: 1000}})
+  @UseGuards(JwtAuthGuard)
+  @Post('submit-verification')
+  async submitVerification(@CurrentUser() user: User, @Body() data: {otp: string}) {
+    await this.authService.submitVerification(user, data.otp);
+    return {status: HttpStatus.OK};
   }
 }
