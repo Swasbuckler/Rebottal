@@ -76,7 +76,7 @@ export type CookieAttributes = {
   maxAge?: number,
   partitioned?: boolean,
   path?: string,
-  sameSite?: string,
+  sameSite?: boolean | "lax" | "strict" | "none",
   secure?: boolean
 };
 

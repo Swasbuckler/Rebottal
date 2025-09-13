@@ -59,6 +59,7 @@ axiosInstance.interceptors.response.use(
           value: parsedCookie.value,
           httpOnly: parsedCookie.httpOnly,
           secure: parsedCookie.secure,
+          sameSite: parsedCookie.sameSite,
           expires: parsedCookie.expires
         });
       });

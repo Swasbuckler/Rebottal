@@ -84,12 +84,14 @@ export class AuthService {
     response.cookie('AccessToken', accessToken, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
       expires: accessTokenExpiration
     });
     
     response.cookie('RefreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
+      sameSite: 'strict',
       expires: refreshTokenExpiration
     });
 
