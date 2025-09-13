@@ -5,11 +5,13 @@ import { User } from '@rebottal/app-definitions';
 import { CheckDataDto } from './dto/check-data.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Throttle({default: {limit: 3, ttl: 1000}})
   @Post()
   async createUser(@Body() inputData: CreateUserDto): Promise<User> {
     return await this.userService.createUser(inputData);
@@ -41,11 +43,13 @@ export class UserController {
     return await this.userService.deleteUser(uuid);
   }
 
+  @Throttle({default: {limit: 10, ttl: 1000}})
   @Post('check/username')
   async checkUsernameAvailability(@Body() inputData: CheckDataDto): Promise<boolean> {
     return await this.userService.doesUsernameExists(inputData.value);
   }
 
+  @Throttle({default: {limit: 10, ttl: 1000}})
   @Post('check/email')
   async checkEmailAvailability(@Body() inputData: CheckDataDto): Promise<boolean> {
     return await this.userService.doesEmailExists(inputData.value);

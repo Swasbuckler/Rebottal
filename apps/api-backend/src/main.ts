@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception/prisma-client-exception.filter';
 import helmet from 'helmet';
-import { doubleCsrf } from 'csrf-csrf';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {

@@ -10,6 +10,7 @@ import { createZodValidationPipe } from "nestjs-zod";
 import { ZodError } from "zod";
 import { ModelModule } from './model/model.module';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const MyZodValidationPipe = createZodValidationPipe({
   createValidationException: (error: ZodError) => new BadRequestException('Data is not valid'),
@@ -28,7 +29,27 @@ const MyZodValidationPipe = createZodValidationPipe({
     PrismaModule, 
     UserModule, 
     AuthModule, 
-    ModelModule, RefreshTokenModule
+    ModelModule, 
+    RefreshTokenModule,
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: 'short',
+          ttl: 1000,
+          limit: 3,
+        },
+        {
+          name: 'medium',
+          ttl: 10000,
+          limit: 20
+        },
+        {
+          name: 'long',
+          ttl: 60000,
+          limit: 100
+        }
+      ]
+    })
   ],
 })
 export class AppModule {}
