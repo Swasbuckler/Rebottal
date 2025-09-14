@@ -7,6 +7,8 @@ import z from "zod";
 const minUsernameLength = 3;
 const maxUsernameLength = 128;
 const minPasswordLength = 12;
+const maxPasswordLength = 128;
+const maxEmailLength = 320;
 
 const passwordErrors = {
   minLength: 'Be at least 12 Characters', 
@@ -22,15 +24,17 @@ export const signUpFormSchema = z.object({
   username: z
     .string({error: 'Please add a desired Username'})
     .trim()
-    .min(minUsernameLength, {error: 'Username must be at least 3 Characters'})
-    .max(maxUsernameLength, {error: 'Username must not exceed 128 Characters'})
+    .min(minUsernameLength, {error: `Username must be at least ${minUsernameLength} Characters`})
+    .max(maxUsernameLength, {error: `Username must not exceed ${maxUsernameLength} Characters`})
     .refine((value) => !(/[^a-zA-Z0-9]/.test(value)), {error: 'Username must not include Special Characters'}),
   email: z
     .email({error: 'Please enter a valid Email'})
-    .trim(),
+    .trim()
+    .max(maxEmailLength, {error: `Email must not exceed ${maxEmailLength} Characters`}),
   password: z
     .string()
     .min(minPasswordLength, {error: passwordErrors.minLength})
+    .max(maxPasswordLength, {error: `Password must not exceed ${maxPasswordLength} Characters`})
     .regex(/[a-z]/, {error: passwordErrors.lowercase})
     .regex(/[A-Z]/, {error: passwordErrors.uppercase})
     .regex(/[0-9]/, {error: passwordErrors.number})
@@ -43,25 +47,28 @@ export const signUpFormSchema = z.object({
 
 export type SignUpUser = z.infer<typeof signUpFormSchema>;
 
-export const createUserSchema = z.object({
-  username: signUpFormSchema.shape.username,
-  email: signUpFormSchema.shape.email,
-  password: signUpFormSchema.shape.password,
-});
-
-export type CreateUser = z.infer<typeof createUserSchema>;
-
 export const logInFormSchema = z.object({
   usernameOrEmail: z
-    .string()
+    .string({error: 'Please enter your Username or Email'})
     .trim(),
   password: z
-    .string(),
+    .string({error: 'Please enter your Password'}),
   rememberMe: z
-    .boolean()
+    .boolean({error: 'Enter proper Boolean'})
 });
 
 export type LogInUser = z.infer<typeof logInFormSchema>;
+
+export const otpLength = 6;
+
+export const submitOTPCodeSchema = z.object({
+  otpCode: z
+    .string({error: 'Please enter the OTP code'})
+    .length(otpLength, {error: `OTP code must be ${otpLength} Numbers long`})
+    .refine((value) => /^\d+$/.test(value), {error: 'OTP must only include Numbers'}),
+});
+
+export type SubmitOTPCode = z.infer<typeof submitOTPCodeSchema>;
 
 export type CheckData = {
   value: string;
@@ -84,6 +91,14 @@ export type CookieAttributes = {
 *   Definitions for User Table
 */
 
+export const createUserSchema = z.object({
+  username: signUpFormSchema.shape.username,
+  email: signUpFormSchema.shape.email,
+  password: signUpFormSchema.shape.password,
+});
+
+export type CreateUser = z.infer<typeof createUserSchema>;
+
 export type User = {
   uuid: string,
   createdAt: Date,
@@ -102,17 +117,17 @@ export type Role = 'USER' | 'ADMIN_LEVEL_1' | 'ADMIN_LEVEL_2';
 
 export const createRefreshTokenSchema = z.object({
   userUuid: z
-    .uuid(),
+    .uuid({error: 'Enter uuid for User'}),
   sub: z
-    .uuid(),
+    .uuid({error: 'Enter uuid for sub of Refresh Token'}),
   token: z
-    .string(),
+    .jwt({error: 'Enter valid JWT Token'}),
   rememberMe: z
-    .boolean(),
+    .boolean({error: 'Enter proper boolean'}),
   accessedAt: z
-    .iso.datetime(),
+    .iso.datetime({error: 'Enter valid ISO DateTime'}),
   expiresAt: z
-    .iso.datetime() 
+    .iso.datetime({error: 'Enter valid ISO DateTime'}) 
 });
 
 export type RefreshToken = {
@@ -133,16 +148,14 @@ const purposeValues = ['VERIFICATION', 'PASSWORD_RESET'] as const;
 
 export const createOTPSchema = z.object({
   userUuid: z
-    .uuid(),
-  code: z
-    .string()
-    .max(6),
+    .uuid({error: 'Enter uuid for User'}),
+  code: submitOTPCodeSchema.shape.otpCode,
   purpose: z
-    .enum(purposeValues),
+    .enum(purposeValues, {error: 'Provide valid Purpose'}),
   createdAt: z
-    .iso.datetime(),
+    .iso.datetime({error: 'Enter valid ISO DateTime'}),
   expiresAt: z
-    .iso.datetime() 
+    .iso.datetime({error: 'Enter valid ISO DateTime'}) 
 });
 
 export type OTP = {

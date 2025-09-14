@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
   };
 
   const validatedFields = signUpFormSchema.safeParse(rawInput);
-  
   if (!validatedFields.success) {
     return;
   }

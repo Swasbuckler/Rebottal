@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { otpLength } from '@rebottal/app-definitions';
 import nodemailer, { Transporter } from "nodemailer";
 
 @Injectable()
@@ -14,10 +15,11 @@ export class MailerService implements OnModuleInit {
         pass: process.env.EMAIL_PASSWORD!
       }
     });
+    console.log(MailerService.transporter);
   }
 
-  async generateOTP(length: number) {
-    const powLength = Math.pow(10, length);
+  async generateOTP() {
+    const powLength = Math.pow(10, otpLength - 1);
     return Math.floor(powLength + Math.random() * (9 * powLength)).toString();
   }
 

@@ -10,11 +10,10 @@ export async function POST(request: NextRequest) {
   const rawInput: LogInUser = {
     usernameOrEmail: formData.get('usernameOrEmail') as string,
     password: formData.get('password') as string,
-    rememberMe: formData.get('rememberMe') == 'true' ? true : false,
+    rememberMe: formData.get('rememberMe') === 'true' ? true : false,
   };
 
   const validatedFields = logInFormSchema.safeParse(rawInput);
-  
   if (!validatedFields.success) {
     return;
   }

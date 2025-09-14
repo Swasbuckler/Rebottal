@@ -168,6 +168,7 @@ function PasswordInput({
 
   useEffect(() => {
     setErrorArray(errors.password?.types ? passwordErrorsArray.filter((element) => Object.values(errors.password?.types!).flat().includes(element)) : []);
+    console.log(errors.password);
   }, [errors.password?.types])
 
   return (
@@ -184,6 +185,7 @@ function PasswordInput({
         autoComplete="off"
       />
       <button type="button" onClick={() => setPasswordVisibility(!passwordVisibility)}>Reveal</button>
+      <p className="text-red-500">{errors.password?.types && errors.password?.types['too_big']}</p>
       <div>
         <p>Password must:</p>
         <ul>

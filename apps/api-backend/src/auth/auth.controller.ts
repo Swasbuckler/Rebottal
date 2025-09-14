@@ -10,6 +10,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentSub } from './current-sub.decorator';
 import { Throttle } from '@nestjs/throttler';
+import { SubmitOTPDto } from 'src/otp/dto/submit-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -51,7 +52,7 @@ export class AuthController {
 
   @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
-  @Post('verification')
+  @Post('verification/request')
   async requestVerification(@CurrentUser() user: User) {
     await this.authService.requestVerification(user);
     return {status: HttpStatus.OK};
@@ -59,9 +60,9 @@ export class AuthController {
 
   @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
-  @Post('submit-verification')
-  async submitVerification(@CurrentUser() user: User, @Body() data: {otp: string}) {
-    await this.authService.submitVerification(user, data.otp);
+  @Post('verification/submit')
+  async submitVerification(@CurrentUser() user: User, @Body() data: SubmitOTPDto) {
+    await this.authService.submitVerification(user, data.otpCode);
     return {status: HttpStatus.OK};
   }
 }

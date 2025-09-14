@@ -1,6 +1,6 @@
 'use client';
 
-import { SubmitHandler, useForm, UseFormRegister } from "react-hook-form";
+import { FieldErrors, SubmitHandler, useForm, UseFormRegister } from "react-hook-form";
 import { logInFormSchema, LogInUser } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -11,7 +11,7 @@ export default function LogInForm() {
   const {
     register,
     handleSubmit,
-    formState: {isSubmitting},
+    formState: {errors, isSubmitting},
   } = useForm<LogInUser>({
     resolver: zodResolver(logInFormSchema),
   });
@@ -33,8 +33,14 @@ export default function LogInForm() {
       className="flex flex-col"
       onSubmit={handleSubmit(submitLogIn)}
     >
-      <UsernameOrEmailInput register={register} />
-      <PasswordInput register={register} />
+      <UsernameOrEmailInput 
+        register={register} 
+        errors={errors}
+      />
+      <PasswordInput 
+        register={register} 
+        errors={errors}
+      />
       <RememberMeInput register={register} />
       <button type="submit">{!isSubmitting ? 'Log In' : 'Processing'}</button>
       <input type="submit" hidden />
@@ -44,8 +50,10 @@ export default function LogInForm() {
 
 function UsernameOrEmailInput({
   register,
+  errors
 }: {
   register: UseFormRegister<LogInUser>,
+  errors: FieldErrors<LogInUser>,
 }) {
 
   return (
@@ -57,14 +65,17 @@ function UsernameOrEmailInput({
         placeholder="Enter Username or Email"
         autoComplete="off"
       />
+      <p className="text-red-500">{errors.usernameOrEmail && errors.usernameOrEmail.message}</p>
     </>
   );
 }
 
 function PasswordInput({
   register,
+  errors
 }: {
   register: UseFormRegister<LogInUser>,
+  errors: FieldErrors<LogInUser>,
 }) {
 
   const [passwordVisibility, setPasswordVisibility] = useState<boolean>(false);
@@ -79,6 +90,7 @@ function PasswordInput({
         autoComplete="off"
       />
       <button type="button" onClick={() => setPasswordVisibility(!passwordVisibility)}>Reveal</button>
+      <p className="text-red-500">{errors.password && errors.password.message}</p>
     </>
   );
 }

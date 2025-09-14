@@ -83,6 +83,7 @@ export class AuthService {
     const userData = {
       username: user.username,
       email: user.email,
+      verified: user.verified,
       role: user.role,
     }
 
@@ -185,8 +186,8 @@ export class AuthService {
   }
 
   async requestVerification(user: User) {
-    const otpCode = await this.mailerService.generateOTP(6);
-
+    const otpCode = await this.mailerService.generateOTP();
+    
     const otpData: CreateOtpDto = {
       userUuid: user.uuid,
       code: otpCode,
@@ -194,7 +195,7 @@ export class AuthService {
       createdAt: new Date(Date.now()).toISOString(),
       expiresAt: new Date(Date.now() + this.otpDuration).toISOString()
     }
-
+    
     const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
     if (!otp) {
       this.otpService.createOTP(otpData);
@@ -203,9 +204,10 @@ export class AuthService {
     }
 
     await this.mailerService.sendOTPEmail(user.email, otpCode);
+    console.log('send');
   }
 
-  async submitVerification(user: User, otpSubmission: string) {
+  async submitVerification(user: User, otpCode: string) {
     const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
     if (!otp) {
       throw new UnauthorizedException();
@@ -214,7 +216,7 @@ export class AuthService {
     if (otp.expiresAt < (new Date(Date.now()))) {
       throw new ConflictException();
     }
-    if (otp.code != otpSubmission) {
+    if (otp.code != otpCode) {
       throw new ConflictException();
     }
 
