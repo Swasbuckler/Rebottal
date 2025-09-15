@@ -26,7 +26,6 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
           message: exception.message
         });
         super.catch(exception, host);
-        break;
     }
   }
 }

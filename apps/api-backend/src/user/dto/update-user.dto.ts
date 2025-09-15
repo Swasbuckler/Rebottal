@@ -1,7 +1,4 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateUserDto } from './create-user.dto';
+import { CreateUserFullDto } from './create-user-full.dto';
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @ApiProperty()
-  verified?: boolean;
-}
+export class UpdateUserDto extends PartialType(CreateUserFullDto) {}

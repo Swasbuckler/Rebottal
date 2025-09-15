@@ -168,7 +168,6 @@ function PasswordInput({
 
   useEffect(() => {
     setErrorArray(errors.password?.types ? passwordErrorsArray.filter((element) => Object.values(errors.password?.types!).flat().includes(element)) : []);
-    console.log(errors.password);
   }, [errors.password?.types])
 
   return (

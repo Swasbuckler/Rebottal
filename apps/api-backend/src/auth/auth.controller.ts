@@ -1,16 +1,19 @@
-import { Body, Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
 import { type Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
-import { type RefreshToken, type User } from '@rebottal/app-definitions';
+import { type CreateUserFull, type RefreshToken, type User } from '@rebottal/app-definitions';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentSub } from './current-sub.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { SubmitOTPDto } from 'src/otp/dto/submit-otp.dto';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { CreateUserFullDto } from 'src/user/dto/create-user-full.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -18,16 +21,20 @@ export class AuthController {
 
   @Throttle({default: {limit: 3, ttl: 1000}})
   @Post('sign-up')
-  async signUp(@Body() inputData: CreateUserDto) {
+  async signUp(@Body() inputData: CreateUserDto, @Res({passthrough: true}) response: Response) {
     await this.authService.signUp(inputData);
-    return {status: HttpStatus.OK};
+    response.status(HttpStatus.OK);
   }
 
   @Throttle({default: {limit: 10, ttl: 1000}})
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
   async logIn(@Body() data: LogInUserDto, @CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    await this.authService.logInAndPassCookies(user, Boolean(data.rememberMe), response);
+    const userData = await this.authService.logInAndPassCookies(user, Boolean(data.rememberMe), response);
+    response.status(HttpStatus.OK).json({
+      data: userData,
+      message: 'Logged In'
+    });
   }
 
   @Throttle({default: {limit: 10, ttl: 1000}})
@@ -35,6 +42,9 @@ export class AuthController {
   @Post('refresh')
   async refresh(@CurrentUser() user: User, @CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
     await this.authService.refreshAndPassCookies(user, sub, response);
+    response.status(HttpStatus.OK).json({
+      message: 'Refresh'
+    });
   }
 
   @UseGuards(JwtAuthGuard)
@@ -53,16 +63,32 @@ export class AuthController {
   @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
   @Post('verification/request')
-  async requestVerification(@CurrentUser() user: User) {
+  async requestVerification(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
+    if (user.verified) {
+      throw new ConflictException();
+    }
+
     await this.authService.requestVerification(user);
-    return {status: HttpStatus.OK};
+    response.status(HttpStatus.OK);
   }
 
   @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
   @Post('verification/submit')
-  async submitVerification(@CurrentUser() user: User, @Body() data: SubmitOTPDto) {
+  async submitVerification(@CurrentUser() user: User, @Body() data: SubmitOTPDto, @Res({passthrough: true}) response: Response) {
+    if (user.verified) {
+      throw new ConflictException();
+    }
+
     await this.authService.submitVerification(user, data.otpCode);
-    return {status: HttpStatus.OK};
+    response.status(HttpStatus.OK);
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleSignIn(@CurrentUser() user: CreateUserFull, @Res() response: Response) {
+
+    await this.authService.googleSignIn(user, response);
+    response.status(HttpStatus.FOUND).redirect(process.env.FRONTEND_URL!);
   }
 }

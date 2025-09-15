@@ -99,17 +99,32 @@ export const createUserSchema = z.object({
 
 export type CreateUser = z.infer<typeof createUserSchema>;
 
+const roleValues = ['USER', 'ADMIN_LEVEL_1', 'ADMIN_LEVEL_2'] as const;
+
+export const createUserFullSchema = z.object({
+  username: signUpFormSchema.shape.username,
+  email: signUpFormSchema.shape.email,
+  password: signUpFormSchema.shape.password
+    .nullable(),
+  verified: z
+    .boolean({error: 'Enter proper boolean for Verified'}),
+  role: z
+    .enum(roleValues, {error: 'Provide valid Role'}),
+});
+
+export type CreateUserFull = z.infer<typeof createUserFullSchema>;
+
 export type User = {
   uuid: string,
   createdAt: Date,
   username: string,
   email: string,
-  password: string,
+  password: string | null,
   verified: boolean,
   role: Role,
 };
 
-export type Role = 'USER' | 'ADMIN_LEVEL_1' | 'ADMIN_LEVEL_2';
+export type Role = typeof roleValues[number];
 
 /*
 *   Definitions for Refresh Token Table
@@ -123,7 +138,7 @@ export const createRefreshTokenSchema = z.object({
   token: z
     .jwt({error: 'Enter valid JWT Token'}),
   rememberMe: z
-    .boolean({error: 'Enter proper boolean'}),
+    .boolean({error: 'Enter proper boolean for Remember Me'}),
   accessedAt: z
     .iso.datetime({error: 'Enter valid ISO DateTime'}),
   expiresAt: z
@@ -153,9 +168,9 @@ export const createOTPSchema = z.object({
   purpose: z
     .enum(purposeValues, {error: 'Provide valid Purpose'}),
   createdAt: z
-    .iso.datetime({error: 'Enter valid ISO DateTime'}),
+    .iso.datetime({error: 'Enter valid ISO DateTime for Created At'}),
   expiresAt: z
-    .iso.datetime({error: 'Enter valid ISO DateTime'}) 
+    .iso.datetime({error: 'Enter valid ISO DateTime for Expires At'}) 
 });
 
 export type OTP = {

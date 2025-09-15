@@ -4,12 +4,13 @@ import { UserService } from 'src/user/user.service';
 import bcrypt from 'bcrypt';
 import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { OTP, RefreshToken, User } from '@rebottal/app-definitions';
+import { OTP, RefreshToken, User, CreateUserFull } from '@rebottal/app-definitions';
 import { Response } from 'express';
 import { RefreshTokenService } from 'src/refresh-token/refresh-token.service';
 import { OtpService } from 'src/otp/otp.service';
 import { MailerService } from 'src/mailer/mailer.service';
 import { CreateOtpDto } from 'src/otp/dto/create-otp.dto';
+import { CreateUserFullDto } from 'src/user/dto/create-user-full.dto';
 
 @Injectable()
 export class AuthService {
@@ -101,10 +102,7 @@ export class AuthService {
       expires: refreshTokenExpiration
     });
 
-    return response.status(HttpStatus.OK).json({
-      data: userData,
-      message: 'Logged In'
-    });
+    return userData;
   }
 
   async refreshAndPassCookies(user: User, sub: string, response: Response) {
@@ -133,16 +131,12 @@ export class AuthService {
       sameSite: 'strict',
       expires: refreshTokenExpiration
     });
-
-    return response.status(HttpStatus.OK).json({
-      message: 'Refresh'
-    });
   }
 
   async validateUser(usernameOrEmail: string, password: string) {
     const user = await this.userService.findUser(usernameOrEmail);
     
-    if (!user) {
+    if (!user || !user.password) {
       throw new UnauthorizedException();
     }
     if (!(await bcrypt.compare(password, user.password))) {
@@ -168,6 +162,11 @@ export class AuthService {
 
   async validateAccessToken(payload: {sub: string, uuid: string}) {
     const {user, refreshToken} = await this.validateUserAndRefreshToken(payload);
+
+    if (Date.now() - refreshToken.accessedAt.getTime() >= parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION!)) {
+      throw new UnauthorizedException();
+    }
+
     return {user, sub: refreshToken.sub};
   }
 
@@ -204,7 +203,6 @@ export class AuthService {
     }
 
     await this.mailerService.sendOTPEmail(user.email, otpCode);
-    console.log('send');
   }
 
   async submitVerification(user: User, otpCode: string) {
@@ -216,12 +214,32 @@ export class AuthService {
     if (otp.expiresAt < (new Date(Date.now()))) {
       throw new ConflictException();
     }
-    if (otp.code != otpCode) {
+    if (otp.code !== otpCode) {
       throw new ConflictException();
     }
 
     await this.userService.updateUser(user.uuid, {
       verified: true
     });
+  }
+
+  async googleSignIn(user: CreateUserFull, response: Response) {
+    const existingUser = await this.userService.findUser(user.email);
+    if (existingUser) {
+      return await this.logInAndPassCookies(existingUser, false, response);
+    } else {
+      const newUser: CreateUserFull = JSON.parse(JSON.stringify(user));
+
+      newUser.username = newUser.username.replace(' ', '');
+      let val = 0, nextUsername = newUser.username;
+      while (await this.userService.doesUsernameExists(nextUsername)) {
+        val++;
+        nextUsername = newUser.username + val.toString();
+      }
+      newUser.username = nextUsername;
+
+      const newUserFound = await this.userService.createUserFull(newUser);
+      return await this.logInAndPassCookies(newUserFound, false, response);
+    }
   }
 }

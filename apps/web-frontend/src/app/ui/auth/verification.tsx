@@ -136,7 +136,7 @@ function OTPForm({
         />
         <button 
           type="button"
-          onClick={() => {console.log('test');reset()}}
+          onClick={() => {reset()}}
         >
           Clear OTP
         </button>

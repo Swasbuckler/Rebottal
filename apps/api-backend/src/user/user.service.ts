@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '@rebottal/app-definitions';
+import { CreateUser, CreateUserFull, User } from '@rebottal/app-definitions';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserFullDto } from './dto/create-user-full.dto';
 
 @Injectable()
 export class UserService {
@@ -12,10 +13,21 @@ export class UserService {
   private readonly saltRounds = 10;
 
   async createUser(data: CreateUserDto): Promise<User> {
-    const newUserData: CreateUserDto = JSON.parse(JSON.stringify(data));
+    const newUserData: CreateUser = JSON.parse(JSON.stringify(data));
 
-    const hash = await bcrypt.hash(data.password, this.saltRounds)
+    const hash = await bcrypt.hash(data.password, this.saltRounds);
     newUserData.password = hash;
+
+    return await this.prismaService.user.create({data: newUserData});
+  }
+
+  async createUserFull(data: CreateUserFullDto): Promise<User> {
+    const newUserData: CreateUserFull = JSON.parse(JSON.stringify(data));
+
+    if (data.password) {
+      const hash = await bcrypt.hash(data.password, this.saltRounds);
+      newUserData.password = hash;
+    }
 
     return await this.prismaService.user.create({data: newUserData});
   }

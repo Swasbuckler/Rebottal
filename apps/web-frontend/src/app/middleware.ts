@@ -4,6 +4,13 @@ import { NextRequest, NextResponse } from "next/server";
 const protectedRoutes = ['/menu', '/profile'];
 const publicRoutes = ['/log-in', '/sign-up'];
 
+const allowedOrigins = [process.env.BACKEND_URL!]
+ 
+const corsOptions = {
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
 export default async function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
@@ -30,6 +37,17 @@ export default async function middleware(request: NextRequest) {
     'Content-Security-Policy',
     contentSecurityPolicyHeaderValue
   );
+
+  const origin = request.headers.get('origin') ?? ''
+  const isAllowedOrigin = allowedOrigins.includes(origin)
+
+  if (isAllowedOrigin) {
+    requestHeaders.set('Access-Control-Allow-Origin', origin)
+  }
+
+  Object.entries(corsOptions).forEach(([key, value]) => {
+    requestHeaders.set(key, value)
+  })
 
   const response = NextResponse.next({
     request: {

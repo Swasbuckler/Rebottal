@@ -10,6 +10,7 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
 import { MailerModule } from 'src/mailer/mailer.module';
 import { OtpModule } from 'src/otp/otp.module';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   controllers: [AuthController],
@@ -17,7 +18,8 @@ import { OtpModule } from 'src/otp/otp.module';
     AuthService,
     LocalStrategy,
     JwtStrategy,
-    JwtRefreshStrategy
+    JwtRefreshStrategy,
+    GoogleStrategy
   ],
   imports: [
     UserModule,

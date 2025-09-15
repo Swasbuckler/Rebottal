@@ -15,7 +15,6 @@ export class MailerService implements OnModuleInit {
         pass: process.env.EMAIL_PASSWORD!
       }
     });
-    console.log(MailerService.transporter);
   }
 
   async generateOTP() {
