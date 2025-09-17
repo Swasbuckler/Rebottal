@@ -5,7 +5,7 @@ const protectedRoutes: string[] = [];//['/menu', '/profile'];
 const publicRoutes: string[] = [];//['/log-in', '/sign-up'];
 const signInRoutes: string[] = ['/sign-in/google'];
 
-const allowedOrigins = [process.env.NEXT_PUBLIC_BACKEND_URL!];
+const allowedOrigins = [process.env.BACKEND_URL!];
  
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -18,7 +18,7 @@ export default async function middleware(request: NextRequest) {
   const path = url.pathname;
 
   if (path.startsWith('/api')) {
-    return NextResponse.rewrite(process.env.NEXT_PUBLIC_BACKEND_URL! + path.slice(4));
+    return NextResponse.rewrite(process.env.BACKEND_URL! + path.slice(4));
   }
 
   const isSignInRoute = signInRoutes.includes(path);

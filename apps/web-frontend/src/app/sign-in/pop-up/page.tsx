@@ -2,15 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { boardcastSignInAuthPost } from '../../lib/auth/third-party-sign-in';
 
 export default function PopUp() {
 
   const authParty = useSearchParams().get('auth-party');
 
   useEffect(() => {
-    const channel = new BroadcastChannel(authParty ? authParty : 'auth');
-    channel.postMessage('Authenticated');
-    channel.close();
+    boardcastSignInAuthPost(authParty);
     window.close();
   }, []);
 

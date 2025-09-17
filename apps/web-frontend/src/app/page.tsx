@@ -1,10 +1,8 @@
 'use client';
 
 import { GoogleSignInParty } from "@rebottal/app-definitions";
-import axios from "axios";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { boardcastSignInAuthReceive } from './lib/auth/third-party-sign-in';
 
 export default function Home() {
 
@@ -16,17 +14,10 @@ export default function Home() {
       <Link href={'/test3'}>Test</Link>
       <button type="button" onClick={async () => {
         window.open('/sign-in/google', 'popup', 'popup=true');
-        const channel = new BroadcastChannel(GoogleSignInParty);
-        channel.addEventListener('message', (event) => {
-          if (event.origin === "http://localhost:3000") {
-            if (event.data === 'Authenticated') {
-              channel.close();
-            }
-          } else {
-            console.warn("Untrusted message origin:", event.origin);
-          }
-        });
-      }}>Sign Up with Google</button>
+        boardcastSignInAuthReceive(GoogleSignInParty);
+      }}>
+        Sign Up with Google
+      </button>
     </div>
   );
 }

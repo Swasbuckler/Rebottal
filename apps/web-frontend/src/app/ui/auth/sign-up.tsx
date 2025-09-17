@@ -6,6 +6,7 @@ import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckData, CreateUse
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceTrigger } from "../../lib/utils/debounce";
 import axios from "axios";
+import { getRecaptchaToken } from "@/app/lib/auth/recaptcha";
 
 export default function SignUpForm() {
   
@@ -40,9 +41,16 @@ export default function SignUpForm() {
       password: validatedFields.data.password,
     };
     
+    const recaptchaToken = await getRecaptchaToken();
+
     await axios.post(
       '/api/auth/sign-up', 
-      signUpData
+      signUpData,
+      {
+        headers: {
+          'x-recaptcha-token': recaptchaToken
+        }
+      }
     );
   }
   
@@ -82,6 +90,7 @@ export default function SignUpForm() {
       />
       <button type="submit">{!isSubmitting ? 'Sign Up' : 'Processing'}</button>
       <input type="submit" hidden />
+      <p>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
     </form>
   );
 }

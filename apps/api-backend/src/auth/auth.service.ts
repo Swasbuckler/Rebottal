@@ -231,15 +231,47 @@ export class AuthService {
       const newUser: CreateUserFull = JSON.parse(JSON.stringify(user));
 
       newUser.username = newUser.username.replace(' ', '');
-      let val = 0, nextUsername = newUser.username;
+      let randomNum = 0;
+      let nextUsername = newUser.username;
       while (await this.userService.doesUsernameExists(nextUsername)) {
-        val++;
-        nextUsername = newUser.username + val.toString();
+        randomNum = Math.floor(Math.random() * 1000);
+        nextUsername = newUser.username + randomNum.toString();
       }
       newUser.username = nextUsername;
 
       const newUserFound = await this.userService.createUserFull(newUser);
       return await this.logInAndPassCookies(newUserFound, false, response);
+    }
+  }
+
+  async validateRecaptcha(token: string) {
+    const minimumScore = 0.5;
+
+    try {
+      const params = new URLSearchParams({
+        secret: process.env.RECAPTCHA_SECRET_KEY!,
+        response: token
+      });
+      const response = await fetch(`https://www.google.com/recaptcha/api/siteverify?${params}`, {
+        method: 'POST',
+        body: null
+      });
+
+      const { success, score, hostname } = await response.json();
+      console.log(success, score, hostname)
+
+      if (!success) {
+        throw new Error('Invalid captcha');
+      }
+
+      if (score < minimumScore) {
+        throw new Error('Low captcha score');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error verifying Recaptcha', error);
+      return false;
     }
   }
 }

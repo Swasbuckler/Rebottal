@@ -12,21 +12,21 @@ import { CurrentSub } from './current-sub.decorator';
 import { Throttle } from '@nestjs/throttler';
 import { SubmitOTPDto } from 'src/otp/dto/submit-otp.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
-import { CreateUserFullDto } from 'src/user/dto/create-user-full.dto';
+import { RecaptchaAuthGuard } from './guards/recaptcha-auth.guard';
 
+@Throttle({default: {limit: 3, ttl: 5000}})
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Throttle({default: {limit: 3, ttl: 1000}})
+  @UseGuards(RecaptchaAuthGuard)
   @Post('sign-up')
   async signUp(@Body() inputData: CreateUserDto, @Res({passthrough: true}) response: Response) {
     await this.authService.signUp(inputData);
     response.status(HttpStatus.OK);
   }
 
-  @Throttle({default: {limit: 10, ttl: 1000}})
+  @UseGuards(RecaptchaAuthGuard)
   @UseGuards(LocalAuthGuard)
   @Post('log-in')
   async logIn(@Body() data: LogInUserDto, @CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
@@ -37,7 +37,6 @@ export class AuthController {
     });
   }
 
-  @Throttle({default: {limit: 10, ttl: 1000}})
   @UseGuards(JwtRefreshAuthGuard)
   @Get('refresh')
   async refresh(@CurrentUser() user: User, @CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
@@ -60,7 +59,6 @@ export class AuthController {
     });
   }
 
-  @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
   @Get('verification/request')
   async requestVerification(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
@@ -72,7 +70,6 @@ export class AuthController {
     response.status(HttpStatus.OK);
   }
 
-  @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
   @Post('verification/submit')
   async submitVerification(@CurrentUser() user: User, @Body() data: SubmitOTPDto, @Res({passthrough: true}) response: Response) {
@@ -88,6 +85,6 @@ export class AuthController {
   @Get('google/callback')
   async googleSignIn(@CurrentUser() user: CreateUserFull, @Res() response: Response) {
     await this.authService.googleSignIn(user, response);
-    response.status(HttpStatus.FOUND).redirect(process.env.FRONTEND_URL! + '/sign-in/pop-up?auth-party=' + GoogleSignInParty);
+    response.status(HttpStatus.FOUND).redirect(`${process.env.FRONTEND_URL!}/sign-in/pop-up?auth-party=${GoogleSignInParty}`);
   }
 }

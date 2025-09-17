@@ -1,6 +1,5 @@
 'use client';
 
-import axios from "axios";
 import LogInForm from "../ui/auth/log-in";
 import axiosInstance from "../lib/auth/axios-instance";
 

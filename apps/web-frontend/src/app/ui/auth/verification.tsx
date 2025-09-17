@@ -14,10 +14,7 @@ export default function VerificationForm({
 }) {
 
   return (
-    <>
-      <OTPForm otpSent={otpSent} />
-    </>
-    
+    <OTPForm otpSent={otpSent} />
   );
 
 }
@@ -53,7 +50,7 @@ function OTPForm({
   const {
     register,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: {isSubmitting},
     setValue,
     setFocus,
     getValues,
@@ -68,8 +65,8 @@ function OTPForm({
     }
 
     const rawInput: SubmitOTPCode = {
-        otpCode: Object.values(data).join(''),
-      };
+      otpCode: Object.values(data).join(''),
+    };
 
     const validatedFields = submitOTPCodeSchema.safeParse(rawInput);
     if (!validatedFields.success) {

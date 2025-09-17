@@ -5,6 +5,7 @@ import { logInFormSchema, LogInUser } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import axios from "axios";
+import { getRecaptchaToken } from "@/app/lib/auth/recaptcha";
 
 export default function LogInForm() {
   
@@ -33,10 +34,17 @@ export default function LogInForm() {
       password: validatedFields.data.password,
       rememberMe: validatedFields.data.rememberMe
     };
+
+    const recaptchaToken = await getRecaptchaToken();
     
     await axios.post(
       '/api/auth/log-in', 
-      logInData
+      logInData,
+      {
+        headers: {
+          'x-recaptcha-token': recaptchaToken
+        }
+      }
     );
   }
 
@@ -56,6 +64,7 @@ export default function LogInForm() {
       <RememberMeInput register={register} />
       <button type="submit">{!isSubmitting ? 'Log In' : 'Processing'}</button>
       <input type="submit" hidden />
+      <p>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
     </form>
   );
 }
