@@ -4,6 +4,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { RefreshToken } from '@rebottal/app-definitions';
 import { CreateRefreshTokenDto } from './dto/create-refresh-token.dto';
 import { UpdateRefreshTokenDto } from './dto/update-refresh-token.dto';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class RefreshTokenService {
@@ -101,5 +102,16 @@ export class RefreshTokenService {
       return await this.deleteRefreshToken(earliestToken!.sub);
     }
     throw new InternalServerErrorException();
+  }
+
+  @Cron('0 0 * * * *')
+  async handleExpiredRefreshTokens() {
+    await this.prismaService.refreshToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(Date.now())
+        }
+      }
+    });
   }
 }

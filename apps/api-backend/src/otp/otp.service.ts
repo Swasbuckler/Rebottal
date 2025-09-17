@@ -3,6 +3,7 @@ import { CreateOtpDto } from './dto/create-otp.dto';
 import { UpdateOtpDto } from './dto/update-otp.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { OTP, Purpose } from '@rebottal/app-definitions';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class OtpService {
@@ -82,5 +83,16 @@ export class OtpService {
 
     if (otp) return true;
     else return false;
+  }
+
+  @Cron('0 0 * * * *')
+  async handleExpiredOTPs() {
+    await this.prismaService.oTP.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(Date.now())
+        }
+      }
+    });
   }
 }

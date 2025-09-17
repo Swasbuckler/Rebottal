@@ -13,6 +13,7 @@ import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from './mailer/mailer.module';
 import { OtpModule } from './otp/otp.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 const MyZodValidationPipe = createZodValidationPipe({
   createValidationException: (error: ZodError) => new BadRequestException('Data is not valid'),
@@ -54,6 +55,7 @@ const MyZodValidationPipe = createZodValidationPipe({
         }
       ]
     }),
+    ScheduleModule.forRoot()
   ],
 })
 export class AppModule {}
