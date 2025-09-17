@@ -1,8 +1,8 @@
 'use client';
 
+import axiosInstance from "@/app/lib/auth/axios-instance";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { otpLength } from "@rebottal/app-definitions";
-import axios from "axios";
+import { otpLength, SubmitOTPCode, submitOTPCodeSchema } from "@rebottal/app-definitions";
 import { Dispatch, KeyboardEvent, SetStateAction, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
@@ -66,18 +66,25 @@ function OTPForm({
     if (disabled) {
       return;
     }
-    const formData = new FormData();
-    formData.append('otpCode', Object.values(data).join(''));
 
-    const response = await axios.post(
-      '/api/auth/verification/submit', 
-      formData
+    const rawInput: SubmitOTPCode = {
+        otpCode: Object.values(data).join(''),
+      };
+
+    const validatedFields = submitOTPCodeSchema.safeParse(rawInput);
+    if (!validatedFields.success) {
+      return;
+    }
+  
+    const otpData: SubmitOTPCode = {
+      otpCode: validatedFields.data.otpCode,
+    };
+  
+    await axiosInstance.post(
+      '/api/auth/verification/submit',
+      otpData
     );
   }
-
-  const triggerSubmit = () => {
-    handleSubmit(submitOTPCode)();
-  };
 
   const handleChange = async (index: number) => {
     const value = getValues(`input${index}` as keyof InputOTPCode);
@@ -162,7 +169,7 @@ function RequestOTP({
 
     setDisabled(() => true);
 
-    const response = await axios.post(
+    const response = await axiosInstance.get(
       '/api/auth/verification/request'
     );
 

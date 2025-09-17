@@ -87,6 +87,14 @@ export type CookieAttributes = {
   secure?: boolean
 };
 
+export type ErrorMessage = {
+  cause: 'Prisma' | 'Server',
+  code: string,
+  message: string
+};
+
+export const GoogleSignInParty: string = 'auth-google-party';
+
 /*
 *   Definitions for User Table
 */

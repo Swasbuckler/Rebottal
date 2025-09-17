@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
-import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckData } from "@rebottal/app-definitions";
+import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckData, CreateUser } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceTrigger } from "../../lib/utils/debounce";
 import axios from "axios";
@@ -22,14 +22,27 @@ export default function SignUpForm() {
   });
 
   const submitSignUp: SubmitHandler<SignUpUser> = async (data) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((field) => {
-      formData.append(field, data[field as keyof typeof data])
-    });
+    const rawInput: SignUpUser = {
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      confirm: data.confirm,
+    };
+
+    const validatedFields = signUpFormSchema.safeParse(rawInput);
+    if (!validatedFields.success) {
+      return;
+    }
+
+    const signUpData: CreateUser = {
+      username: validatedFields.data.username,
+      email: validatedFields.data.email,
+      password: validatedFields.data.password,
+    };
     
     await axios.post(
       '/api/auth/sign-up', 
-      formData
+      signUpData
     );
   }
   
@@ -46,7 +59,7 @@ export default function SignUpForm() {
         register={register}
         trigger={trigger}
         getValues={getValues}
-        apiUrl={'check/username'}
+        apiUrl={'/check/username'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -58,7 +71,7 @@ export default function SignUpForm() {
         register={register}
         trigger={trigger}
         getValues={getValues}
-        apiUrl={'check/email'}
+        apiUrl={'/check/email'}
         errors={errors}
         touchedFields={touchedFields}
       />
@@ -103,7 +116,7 @@ function DebounceInput({
 
     const checkData: CheckData = {value: value}
     const response = await axios.post(
-      '/api/auth/' + apiUrl, 
+      '/api/user' + apiUrl, 
       checkData
     );
 

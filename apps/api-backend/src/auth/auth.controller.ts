@@ -5,7 +5,7 @@ import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
 import { type Response } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { CurrentUser } from './current-user.decorator';
-import { type CreateUserFull, type RefreshToken, type User } from '@rebottal/app-definitions';
+import { GoogleSignInParty, type CreateUserFull, type RefreshToken, type User } from '@rebottal/app-definitions';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 import { CurrentSub } from './current-sub.decorator';
@@ -39,7 +39,7 @@ export class AuthController {
 
   @Throttle({default: {limit: 10, ttl: 1000}})
   @UseGuards(JwtRefreshAuthGuard)
-  @Post('refresh')
+  @Get('refresh')
   async refresh(@CurrentUser() user: User, @CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
     await this.authService.refreshAndPassCookies(user, sub, response);
     response.status(HttpStatus.OK).json({
@@ -48,7 +48,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('log-out')
+  @Get('log-out')
   async logOut(@CurrentSub() sub: string, @Res({passthrough: true}) response: Response) {
     await this.authService.logOut(sub);
     
@@ -62,7 +62,7 @@ export class AuthController {
 
   @Throttle({default: {limit: 3, ttl: 1000}})
   @UseGuards(JwtAuthGuard)
-  @Post('verification/request')
+  @Get('verification/request')
   async requestVerification(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
     if (user.verified) {
       throw new ConflictException();
@@ -87,8 +87,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleSignIn(@CurrentUser() user: CreateUserFull, @Res() response: Response) {
-
     await this.authService.googleSignIn(user, response);
-    response.status(HttpStatus.FOUND).redirect(process.env.FRONTEND_URL!);
+    response.status(HttpStatus.FOUND).redirect(process.env.FRONTEND_URL! + '/sign-in/pop-up?auth-party=' + GoogleSignInParty);
   }
 }

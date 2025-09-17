@@ -9,11 +9,13 @@ import { OTP, type Purpose } from '@rebottal/app-definitions';
 export class OtpController {
   constructor(private readonly otpService: OtpService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createOTP(@Body() createOtpDto: CreateOtpDto): Promise<OTP> {
     return await this.otpService.createOTP(createOtpDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAllOTPs(): Promise<OTP[]> {
     return await this.otpService.findAllOTPs();
@@ -31,11 +33,13 @@ export class OtpController {
     return await this.otpService.findOTPByUserUuidAndPurpose(uuid, purpose);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':uuid/:purpose/update')
   async updateOTP(@Param('uuid') uuid: string, @Param('purpose') purpose: Purpose, @Body() updateOtpDto: UpdateOtpDto): Promise<OTP> {
     return this.otpService.updateOTPByUuidAndPurpose(uuid, purpose, updateOtpDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':uuid/:purpose/delete')
   async deleteOTP(@Param('uuid') uuid: string, @Param('purpose') purpose: Purpose): Promise<OTP> {
     return this.otpService.deleteOTP(uuid, purpose);

@@ -17,14 +17,26 @@ export default function LogInForm() {
   });
 
   const submitLogIn: SubmitHandler<LogInUser> = async (data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([field, value]) => {
-      formData.append(field, value.toString())
-    });
+    const rawInput: LogInUser = {
+      usernameOrEmail: data.usernameOrEmail,
+      password: data.password,
+      rememberMe: data.rememberMe.toString() === 'true' ? true : false,
+    };
 
+    const validatedFields = logInFormSchema.safeParse(rawInput);
+    if (!validatedFields.success) {
+      return;
+    }
+
+    const logInData: LogInUser = {
+      usernameOrEmail: validatedFields.data.usernameOrEmail,
+      password: validatedFields.data.password,
+      rememberMe: validatedFields.data.rememberMe
+    };
+    
     await axios.post(
       '/api/auth/log-in', 
-      formData
+      logInData
     );
   }
 

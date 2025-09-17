@@ -10,11 +10,13 @@ import { CheckDataDto } from 'src/user/dto/check-data.dto';
 export class RefreshTokenController {
   constructor(private readonly refreshTokenService: RefreshTokenService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async createRefreshToken(@Body() inputData: CreateRefreshTokenDto): Promise<RefreshToken> {
     return await this.refreshTokenService.createRefreshToken(inputData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAllRefreshTokens(): Promise<RefreshToken[]> {
     return await this.refreshTokenService.findAllRefreshTokens();
@@ -32,16 +34,19 @@ export class RefreshTokenController {
     return await this.refreshTokenService.findRefreshTokenBySub(sub);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':sub/update')
   async updateRefreshToken(@Param('sub') sub: string, @Body() inputData: UpdateRefreshTokenDto): Promise<RefreshToken> {
     return await this.refreshTokenService.updateRefreshToken(sub, inputData);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':sub/delete')
   async deleteRefreshToken(@Param('sub') sub: string): Promise<RefreshToken> {
     return await this.refreshTokenService.deleteRefreshToken(sub);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('check/sub')
   async checkSubAvailability(@Body() inputData: CheckDataDto): Promise<boolean> {
     return await this.refreshTokenService.doesSubExists(inputData.value);
