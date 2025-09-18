@@ -258,7 +258,6 @@ export class AuthService {
       });
 
       const { success, score, hostname } = await response.json();
-      console.log(success, score, hostname)
 
       if (!success) {
         throw new Error('Invalid captcha');

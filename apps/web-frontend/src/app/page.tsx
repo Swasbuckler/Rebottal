@@ -11,7 +11,6 @@ export default function Home() {
       <Link href={'/sign-up'}>Sign Up</Link>
       <Link href={'/log-in'}>Log In</Link>
       <Link href={'/verification'}>Verification</Link>
-      <Link href={'/test3'}>Test</Link>
       <button type="button" onClick={async () => {
         window.open('/sign-in/google', 'popup', 'popup=true');
         boardcastSignInAuthReceive(GoogleSignInParty);
