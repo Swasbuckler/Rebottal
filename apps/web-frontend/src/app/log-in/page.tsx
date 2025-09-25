@@ -1,6 +1,6 @@
 'use client';
 
-import LogInForm from "../ui/auth/log-in";
+import LogInForm from "../ui/auth/LogInForm";
 import axiosInstance from "../lib/auth/axios-instance";
 
 export default function LogIn() {

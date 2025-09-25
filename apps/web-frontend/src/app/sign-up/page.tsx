@@ -1,6 +1,6 @@
 'use client';
 
-import SignUpForm from "../ui/auth/sign-up";
+import SignUpForm from "../ui/auth/SignUpForm";
 
 export default function SignUp() {
 

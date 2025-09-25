@@ -1,6 +1,6 @@
 'use client';
 
-import VerificationForm from "../ui/auth/verification";
+import VerificationForm from "../ui/auth/VerificationForm";
 
 export default function Verification() {
 

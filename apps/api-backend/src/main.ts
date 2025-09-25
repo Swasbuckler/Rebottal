@@ -4,9 +4,15 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaClientExceptionFilter } from './prisma/prisma-client-exception/prisma-client-exception.filter';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import { ConsoleLogger } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      prefix: 'Rebottal_Backend',
+      json: true
+    })
+  });
 
   app.use(helmet());
 
