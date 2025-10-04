@@ -2,7 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateOtpDto } from './dto/create-otp.dto';
 import { UpdateOtpDto } from './dto/update-otp.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { OTP, Purpose } from '@rebottal/app-definitions';
+import { OTP, OTPPurpose } from '@rebottal/app-definitions';
 import { Cron } from '@nestjs/schedule';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class OtpService {
     });
   }
   
-  async findOTPByUserUuidAndPurpose(uuid: string, purpose: Purpose): Promise<OTP | null> {
+  async findOTPByUserUuidAndPurpose(uuid: string, purpose: OTPPurpose): Promise<OTP | null> {
     return await this.prismaService.oTP.findFirst({
       where: {
         userUuid: uuid,
@@ -37,7 +37,7 @@ export class OtpService {
     });
   }
 
-  async updateOTPByUuidAndPurpose(uuid: string, purpose: Purpose, data: UpdateOtpDto): Promise<OTP> {
+  async updateOTPByUuidAndPurpose(uuid: string, purpose: OTPPurpose, data: UpdateOtpDto): Promise<OTP> {
     const otp = await this.findOTPByUserUuidAndPurpose(uuid, purpose);
     if (!otp) {
       throw new ConflictException();
@@ -60,7 +60,7 @@ export class OtpService {
     });
   }
   
-  async deleteOTP(uuid: string, purpose: Purpose): Promise<OTP> {
+  async deleteOTP(uuid: string, purpose: OTPPurpose): Promise<OTP> {
     const otp = await this.findOTPByUserUuidAndPurpose(uuid, purpose);
     if (!otp) {
       throw new ConflictException();
@@ -73,7 +73,7 @@ export class OtpService {
     })
   }
 
-  async doesOTPExists(uuid: string, purpose: Purpose): Promise<boolean> {
+  async doesOTPExists(uuid: string, purpose: OTPPurpose): Promise<boolean> {
     const otp = await this.prismaService.oTP.findFirst({
       where: {
         userUuid: uuid,
@@ -85,7 +85,7 @@ export class OtpService {
     else return false;
   }
 
-  @Cron('0 0 * * * *')
+  @Cron('0 0 * * *')
   async handleExpiredOTPs() {
     await this.prismaService.oTP.deleteMany({
       where: {

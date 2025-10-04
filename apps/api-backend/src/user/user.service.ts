@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { CreateUser, CreateUserFull, User } from '@rebottal/app-definitions';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUserFullDto } from './dto/create-user-full.dto';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class UserService {
@@ -99,5 +100,22 @@ export class UserService {
 
     if (user) return true;
     else return false;
+  }
+
+  @Cron('0 0 * * *')
+  async handleExpiredRefreshTokens() {
+    const date30DayAgo = new Date(Date.now());
+    date30DayAgo.setDate(date30DayAgo.getDate() - 30);
+
+    await this.prismaService.user.deleteMany({
+      where: {
+        verified: {
+          equals: false
+        },
+        createdAt: {
+          lt: date30DayAgo
+        }
+      }
+    });
   }
 }

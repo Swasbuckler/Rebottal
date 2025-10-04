@@ -104,7 +104,7 @@ export class RefreshTokenService {
     throw new InternalServerErrorException();
   }
 
-  @Cron('0 0 * * * *')
+  @Cron('0 0 * * *')
   async handleExpiredRefreshTokens() {
     await this.prismaService.refreshToken.deleteMany({
       where: {
