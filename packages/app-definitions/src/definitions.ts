@@ -107,7 +107,7 @@ export const createUserSchema = z.object({
 
 export type CreateUser = z.infer<typeof createUserSchema>;
 
-const roleValues = ['USER', 'ADMIN_LEVEL_1', 'ADMIN_LEVEL_2'] as const;
+const userRoleValues = ['USER', 'ADMIN_LEVEL_1', 'ADMIN_LEVEL_2'] as const;
 
 export const createUserFullSchema = z.object({
   username: signUpFormSchema.shape.username,
@@ -117,7 +117,7 @@ export const createUserFullSchema = z.object({
   verified: z
     .boolean({error: 'Enter proper boolean for Verified'}),
   role: z
-    .enum(roleValues, {error: 'Provide valid Role'}),
+    .enum(userRoleValues, {error: 'Provide valid Role'}),
 });
 
 export type CreateUserFull = z.infer<typeof createUserFullSchema>;
@@ -129,10 +129,10 @@ export type User = {
   email: string,
   password: string | null,
   verified: boolean,
-  role: Role,
+  role: UserRole,
 };
 
-export type Role = typeof roleValues[number];
+export type UserRole = typeof userRoleValues[number];
 
 /*
 *   Definitions for Refresh Token Table
@@ -167,14 +167,14 @@ export type RefreshToken = {
 *   Definitions for OTP Table
 */
 
-const purposeValues = ['VERIFICATION', 'PASSWORD_RESET'] as const;
+const otpPurposeValues = ['VERIFICATION', 'PASSWORD_RESET'] as const;
 
 export const createOTPSchema = z.object({
   userUuid: z
     .uuid({error: 'Enter uuid for User'}),
   code: submitOTPCodeSchema.shape.otpCode,
   purpose: z
-    .enum(purposeValues, {error: 'Provide valid Purpose'}),
+    .enum(otpPurposeValues, {error: 'Provide valid Purpose'}),
   createdAt: z
     .iso.datetime({error: 'Enter valid ISO DateTime for Created At'}),
   expiresAt: z
@@ -185,9 +185,9 @@ export type OTP = {
   id: number,
   userUuid: string,
   code: string,
-  purpose: Purpose
+  purpose: OTPPurpose
   createdAt: Date, 
   expiresAt: Date,
 };
 
-export type Purpose = typeof purposeValues[number];
+export type OTPPurpose = typeof otpPurposeValues[number];

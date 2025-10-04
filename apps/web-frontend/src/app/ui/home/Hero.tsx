@@ -3,10 +3,36 @@
 import { useTheme } from "@/app/lib/utils/ThemeProvider";
 import { useGSAP } from "@gsap/react";
 import { gsap, SplitText } from "gsap/all";
-import { useEffect, useRef } from "react";
-import { DefaultLogo } from "./DefaultLogo";
+import { RefObject, useEffect, useRef } from "react";
+import { DefaultLogo } from "../components/DefaultLogo";
+import MaxWidthContainer from "../components/MaxContainer";
 
-export default function Hero() {
+export default function Hero({
+  id,
+  smoother
+}: {
+  id?: string
+  smoother: RefObject<ScrollSmoother | null>
+}) {
+
+
+  return (
+    <>
+      <div 
+        id={id}
+        className="hidden"
+      ></div>
+      <HeroSection smoother={smoother} />
+      <TransitionWave />
+    </>
+  );
+}
+
+function HeroSection({
+  smoother
+}: {
+  smoother: RefObject<ScrollSmoother | null>
+}) {
 
   const {theme} = useTheme();
   const sillyAnimation = useRef<gsap.core.Tween | null>(null);
@@ -41,7 +67,7 @@ export default function Hero() {
       .from(heroTextAnd, {
         duration: 0.2,
         opacity: 0,
-        borderRight: '5px solid white',
+        borderRight: '4px solid white',
         stagger: 0.1,
       })
       .from(heroTextRebuttals, {
@@ -115,31 +141,34 @@ export default function Hero() {
   }, [theme]);
 
   return (
-    <>
-      <div id="hero-container" className="z-1">
-        <div className="flex flex-col gap-5 items-center justify-center w-full h-[75vh] md:h-screen">
-          <div className="relative text-2xl hero-text text-center overflow-hidden">
+    <MaxWidthContainer 
+      id="hero-container" 
+      className="z-1"
+    >
+      <div>
+        <div className="h-7 sm:h-0"></div>
+        <div className="flex flex-col gap-3 md:gap-5 items-center justify-center w-full h-[75vh] md:h-screen">
+          <div className="relative text-lg md:text-2xl hero-text text-center overflow-hidden">
             <span className="font-bungee tracking-wide">Debates</span> and <span className="font-bungee tracking-wide">Rebuttals</span>
             <DebatesAnimationSvgs />
           </div>
-          <div className="text-5xl font-bold text-center"><span className="hero-text-silly1">With the</span> <span className="hero-text-silly">Silliest</span> <span className="hero-text-silly2">of AI ChatBots</span></div>
-          <div className="text-base text-center hero-text-sub">Challenge and play with the personalities of our Bots. Try your luck and put your intellect to the test against their goofiness.</div>
-          <HeroButtons />
+          <div className="px-4 text-4xl md:text-5xl font-bold text-center"><span className="hero-text-silly1">With the</span> <span className="hero-text-silly">Silliest</span> <span className="hero-text-silly2">of AI ChatBots</span></div>
+          <div className="px-6 text-sm sm:text-base text-center hero-text-sub">Challenge and play with the personalities of our Bots. Try your luck and put your intellect to the test against their goofiness.</div>
+          <HeroButtons smoother={smoother} />
         </div>
       </div>
-      <TransitionWave />
-    </>
+    </MaxWidthContainer>
   );
 }
 
 function DebatesAnimationSvgs() {
 
-  const commonClassName = 'h-5 stroke-28 stroke-[#ededed] dark:stroke-[#0a0a0a] transform';
+  const commonClassName = 'h-4 md:h-5 stroke-30 md:stroke-28 stroke-[#ededed] dark:stroke-[#0a0a0a] transform';
 
   return (
     <div className="absolute top-0 flex items-center size-full fill-none pointer-events-none">
       <DebatesSvg
-        className={`${commonClassName} translate-x-[1px]`}
+        className={`${commonClassName} translate-x-[0.015625rem] md:translate-x-[0.0625rem]`}
         viewBox="0 0 62 74" 
       >
         <path 
@@ -148,7 +177,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[2.5px]`}
+        className={`${commonClassName} translate-x-[0.0625rem] md:translate-x-[0.15625rem]`}
         viewBox="0 0 66 75" 
       >
         <path 
@@ -157,7 +186,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[1.5px]`}
+        className={`${commonClassName} -translate-x-[0.0625rem] md:translate-x-[0.09375rem]`}
         viewBox="0 0 61 74" 
       >
         <path 
@@ -166,7 +195,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[2px]`}
+        className={`${commonClassName} -translate-x-[0.0625rem] md:translate-x-[0.125rem]`}
         viewBox="0 0 62 73" 
       >
         <path 
@@ -175,7 +204,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[3px]`}
+        className={`${commonClassName} -translate-x-[0.0625rem] md:translate-x-[0.1875rem]`}
         viewBox="0 0 60 75" 
       >
         <path 
@@ -184,7 +213,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[4.5px]`}
+        className={`${commonClassName} -translate-x-[0.09375rem] md:translate-x-[0.28125rem]`}
         viewBox="0 0 66 75" 
       >
         <path 
@@ -193,7 +222,7 @@ function DebatesAnimationSvgs() {
         />
       </DebatesSvg>
       <DebatesSvg
-        className={`${commonClassName} translate-x-[2.5px]`}
+        className={`${commonClassName} -translate-x-[0.21875rem] md:translate-x-[0.15625rem]`}
         viewBox="0 0 60 76" 
       >
         <path 
@@ -228,7 +257,21 @@ function DebatesSvg({
   );
 }
 
-function HeroButtons() {
+function HeroButtons({
+  smoother
+}: {
+  smoother: RefObject<ScrollSmoother | null>
+}) {
+
+  return (
+    <div className="flex flex-col sm:flex-row gap-4 md:gap-10 mt-4 md:mt-6 hero-buttons">
+      <GetStartedButton />
+      <LearnButton smoother={smoother} />
+    </div>
+  );
+}
+
+function GetStartedButton() {
 
   const getStartedPopAnimation = useRef<gsap.core.Timeline | null>(null);
 
@@ -266,35 +309,46 @@ function HeroButtons() {
   }
 
   return (
-    <div className="flex gap-10 mt-6 hero-buttons">
-      <button 
-        className="relative p-1 rounded-md transform hover:scale-105 bg-[linear-gradient(to_right,#0092b8_0%,#00b8db_50%,#0092b8_100%,#00b8db_150%,#0092b8_200%)] dark:bg-[linear-gradient(to_right,#53eafd_0%,#00b8db_50%,#53eafd_100%,#00b8db_150%,#53eafd_200%)] bg-size-[200%_100%] bg-repeat bg-position-[50%_0] hover:bg-position-[-650%_0] hover:shadow-lg/75 hover:shadow-cyan-500 transition-all ease-in-out duration-700 cursor-pointer"
-        type="button"
-        onMouseEnter={() => getStartedEnter()}
-        onMouseLeave={() => getStartedLeave()}
-      >
-        <div className="p-4 px-6 rounded-sm font-bungee bg-[#ededed] dark:bg-[#0a0a0a] z-10">
-          Get Started
+    <button 
+      className="relative p-0.5 rounded-md transform hover:scale-105 bg-[linear-gradient(to_right,#0092b8_0%,#00b8db_50%,#0092b8_100%,#00b8db_150%,#0092b8_200%)] dark:bg-[linear-gradient(to_right,#53eafd_0%,#00b8db_50%,#53eafd_100%,#00b8db_150%,#53eafd_200%)] bg-size-[200%_100%] bg-repeat bg-position-[50%_0] hover:bg-position-[-650%_0] hover:shadow-lg/75 hover:shadow-cyan-500 transition-all ease-in-out duration-700 cursor-pointer"
+      type="button"
+      onMouseEnter={() => getStartedEnter()}
+      onMouseLeave={() => getStartedLeave()}
+    >
+      <div className="p-3 px-[10vw] sm:p-4 sm:px-6 rounded-sm font-bungee bg-[#ededed] dark:bg-[#0a0a0a] z-10">
+        Get Started
+      </div>
+      <div className="absolute -top-7 left-3/4 size-12 transform origin-bottom-left opacity-0 rotate-90 pointer-events-none z-5 get-started-pop">
+        <DefaultLogo className="absolute size-12 fill-[#171717] dark:fill-[#ededed] z-5" />
+        <div className="absolute top-2.5 left-[0.0625rem] w-11.5 h-7.5 transform origin-bottom bg-[#171717] dark:bg-[#ededed] z-5 get-started-pop-mouth"></div>
+        <div className="absolute top-2.5 left-[0.0625rem] w-11.5 h-7.5 transform origin-bottom bg-[#ededed] dark:bg-[#171717] z-1"></div>
+      </div>
+    </button>
+  );
+}
+
+function LearnButton({
+  smoother
+}: {
+  smoother: RefObject<ScrollSmoother | null>
+}) {
+
+  return (
+    <button 
+      className="p-3 px-[10vw] sm:p-4 sm:px-6 rounded-md hover:scale-105 bg-[#ededed] dark:bg-[#0a0a0a] border-2 border-[#0a0a0a] dark:border-[#ededed] cursor-pointer hover:[&>*>*>span:nth-child(1)]:top-full hover:[&>*>*>span:nth-child(2)]:top-0 hover:shadow-lg/50 hover:shadow-cyan-500 transition-all ease-in-out duration-400"
+      type="button"
+      onClick={() => {
+        smoother.current?.scrollTo('#howtoplay', true);
+      }}
+    >
+      <div className="flex gap-3 items-center">
+        Learn How to Play 
+        <div className="relative size-6 border-2 rounded-full border-[#0a0a0a] dark:border-[#ededed] overflow-hidden hero-arrows">
+          <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
+          <span className="absolute -top-full left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
         </div>
-        <div className="absolute -top-7 left-3/4 size-12 transform origin-bottom-left opacity-0 rotate-90 pointer-events-none z-5 get-started-pop">
-          <DefaultLogo className="absolute size-12 fill-[#171717] dark:fill-[#ededed] z-5" />
-          <div className="absolute top-2.5 left-[1px] w-11.5 h-7.5 transform origin-bottom bg-[#171717] dark:bg-[#ededed] z-5 get-started-pop-mouth"></div>
-          <div className="absolute top-2.5 left-[1px] w-11.5 h-7.5 transform origin-bottom bg-[#ededed] dark:bg-[#171717] z-1"></div>
-        </div>
-      </button>
-      <button 
-        className="p-4 px-6 hover:scale-105 bg-[#ededed] dark:bg-[#0a0a0a] border-2 border-[#0a0a0a] dark:border-[#ededed] cursor-pointer hover:[&>*>*>span:nth-child(1)]:top-full hover:[&>*>*>span:nth-child(2)]:top-0 hover:shadow-lg/50 hover:shadow-cyan-500 transition-all ease-in-out duration-400"
-        type="button"
-      >
-        <div className="flex gap-3 items-center">
-          Learn How to Play 
-          <div className="relative size-6 border-2 rounded-full border-[#0a0a0a] dark:border-[#ededed] overflow-hidden hero-arrows">
-            <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
-            <span className="absolute -top-full left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
-          </div>
-        </div>
-      </button>
-    </div>
+      </div>
+    </button>
   );
 }
 
@@ -308,14 +362,14 @@ function TransitionWave() {
         pin: true,
         start: 'top top',
         end: 'top+=100%',
-        scrub: 1
+        scrub: 1,
       }
     })
       .to('.wave-svg-1', {
-        y: '-5vh'
+        y: '-10vh'
       }, 'wave')
       .to('.wave-svg-2', {
-        y: '-3vh'
+        y: '-5vh'
       }, 'wave');
 
   });
@@ -349,7 +403,7 @@ function TransitionWave() {
               fill="url(#bg-1)"
             />
           </svg>
-          <div className="w-full h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[2px] bg-linear-to-b from-cyan-500/40 to-[#ededed] dark:to-[#0a0a0a]"></div>
+          <div className="w-full h-[calc(75vh-3.25rem)] sm:h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[0.125rem] bg-linear-to-b from-cyan-500/40 to-[#ededed] dark:to-[#0a0a0a]"></div>
         </div>
         <div className="absolute top-0 size-full z-0 wave-svg-2">
           <svg 
@@ -377,7 +431,7 @@ function TransitionWave() {
               fill="url(#bg-2)"
             />
           </svg>
-          <div className="w-full h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[2px] bg-linear-to-b from-cyan-500/53 to-[#ededed] dark:to-[#0a0a0a]"></div>
+          <div className="w-full h-[calc(75vh-3.25rem)] sm:h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[0.125rem] bg-linear-to-b from-cyan-500/53 to-[#ededed] dark:to-[#0a0a0a]"></div>
         </div>
         <div className="absolute top-0 size-full z-10 wave-svg-3">
           <svg 
@@ -405,10 +459,12 @@ function TransitionWave() {
               fill="url(#bg-3)"
             />
           </svg>
-          <div className="w-full h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[2.5px] bg-linear-to-b from-cyan-500 to-[#ededed] dark:to-[#0a0a0a]"></div>
+          <div className="w-full h-[calc(75vh-3.25rem)] sm:h-[calc(75vh-5rem)] md:h-[calc(100vh-5rem)] transform -translate-y-[0.15625rem] bg-linear-to-b from-cyan-500 to-[#ededed] dark:to-[#0a0a0a]"></div>
         </div>
         <WaveBoat className="absolute top-3 left-2/3 transform -translate-x-1/2 w-full h-15 z-9" />
-        <div className="absolute top-3 left-2/3 transform -translate-x-16 w-[1px] h-[calc(75vh+6rem)] md:h-[calc(100vh+6rem)] rounded-full bg-linear-to-b from-[#0a0a0a] to-[#0a0a0a00] dark:from-[#ededed] dark:to-[#ededed00] z-10"></div>
+        <div className="absolute top-3 left-2/3 transform -translate-x-16 w-0.25 z-10">
+          <div className="h-[75vh] md:h-[100vh] rounded-full bg-linear-to-b from-[#0a0a0a] to-[#0a0a0a00] dark:from-[#ededed] dark:to-[#ededed00]"></div>
+        </div>
       </div>
     </>
   );

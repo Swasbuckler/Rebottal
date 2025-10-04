@@ -5,6 +5,7 @@ export default function ThemeSelect() {
 
   return (
     <select
+      name="theme"
       value={theme}
       onChange={(e) => {
         setTheme(e.target.value);
