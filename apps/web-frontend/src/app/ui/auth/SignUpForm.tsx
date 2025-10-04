@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { debounceTrigger } from "../../lib/utils/debounce";
 import axios from "axios";
 import { getRecaptchaToken } from "@/app/lib/auth/recaptcha";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faEye, faEyeSlash, faSpinner, faX } from "@fortawesome/free-solid-svg-icons";
 
 export default function SignUpForm() {
   
@@ -56,14 +58,13 @@ export default function SignUpForm() {
   
   return (
     <form 
-      className="flex flex-col"
+      className="flex flex-col gap-1"
       onSubmit={handleSubmit(submitSignUp)}
     >
       <DebounceInput 
         type="text"
-        placeholder="Enter Username"
         field="username"
-        fieldLabel="Enter Username"
+        fieldLabel="Username"
         register={register}
         trigger={trigger}
         getValues={getValues}
@@ -73,9 +74,8 @@ export default function SignUpForm() {
       />
       <DebounceInput 
         type="text"
-        placeholder="Enter Email"
         field="email"
-        fieldLabel="Enter Email"
+        fieldLabel="Email"
         register={register}
         trigger={trigger}
         getValues={getValues}
@@ -88,16 +88,20 @@ export default function SignUpForm() {
         trigger={trigger}
         errors={errors}
       />
-      <button type="submit">{!isSubmitting ? 'Sign Up' : 'Processing'}</button>
+      <button 
+        className="h-8 p-1 mb-2 text-sm lg:text-base font-bold text-[#171717] bg-cyan-500 hover:bg-cyan-400 rounded-md cursor-pointer transition-all ease-in-out duration-200" 
+        type="submit"
+      >
+        {!isSubmitting ? 'Sign Up' : 'Processing'}
+      </button>
       <input type="submit" hidden />
-      <p>This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
+      <p className="text-sm lg:text-base [&>a]:text-cyan-600 [&>a]:dark:text-cyan-500 [&>a]:hover:text-cyan-400 [&>a]:underline [&>a]:transition-all [&>a]:ease-in-out [&>a]:duration-200">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy">Privacy Policy</a> and <a href="https://policies.google.com/terms">Terms of Service</a> apply.</p>
     </form>
   );
 }
 
 function DebounceInput({
   type,
-  placeholder,
   field,
   fieldLabel,
   register, 
@@ -108,7 +112,6 @@ function DebounceInput({
   touchedFields,
 }: {
   type: string,
-  placeholder: string,
   field: keyof SignUpUser,
   fieldLabel: string,
   register: UseFormRegister<SignUpUser>,
@@ -139,33 +142,42 @@ function DebounceInput({
   const existSwitch = (valueExists: ValueExists) => {
     switch (valueExists) {
       case 0:
-        return 'This ' + field + ' is available.';
+        return faCheck;
       
       case 1:
-        return 'This ' + field + ' is not available.';
+        return faX;
 
       case 2:
-        return 'Checking ' + field + ' availability.';
+        return faSpinner;
     }
   }
 
   return (
     <>
-      <label htmlFor={field}>{fieldLabel}</label>
-      <input
-        type={type}
-        {...register(field, {
-          onChange: async () => {
-            setValueExists(n => 2);
-            const valid = await trigger(field);
-            valueDebounce(valid, getValues(field));
-          }
-        })}
-        placeholder={placeholder}
-        autoComplete="off"
-      />
-      <p className="text-red-500">{errors[field] && errors[field].message}</p>
-      <p>{(touchedFields[field] && !errors[field]) && existSwitch(valueExists)}</p>
+      <label 
+        className="text-sm lg:text-base font-bold after:ml-0.5 after:text-red-500 after:content-['*']"
+        htmlFor={field}
+      >
+        {fieldLabel}
+      </label>
+      <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
+        <input
+          className="flex-1 w-full p-1 px-2"
+          type={type}
+          {...register(field, {
+            onChange: async () => {
+              setValueExists(n => 2);
+              const valid = await trigger(field);
+              valueDebounce(valid, getValues(field));
+            }
+          })}
+          autoComplete="off"
+        />
+        <div className={`flex items-center justify-center px-2 ${(touchedFields[field] && !errors[field]) ? '' : 'hidden'} ${valueExists === 2 ? 'animate-spin' : ''} ${valueExists === 1 ? 'text-red-500' : valueExists === 0 ? 'text-green-500' : ''}`}>
+          <FontAwesomeIcon icon={existSwitch(valueExists)} />
+        </div>
+      </div>
+      <p className="h-4 text-[0.75rem] text-red-500">{errors[field] && errors[field].message}</p>
     </>
   );
 }
@@ -194,36 +206,73 @@ function PasswordInput({
 
   return (
     <>
-      <label htmlFor="password">Enter Password</label>
-      <input 
-        type={passwordVisibility ? 'text' : 'password'} 
-        {...register('password', {
-          onChange: () => {
-            trigger('confirm');
-          }
-        })}
-        placeholder="Enter Password"
-        autoComplete="off"
-      />
-      <button type="button" onClick={() => setPasswordVisibility(!passwordVisibility)}>Reveal</button>
-      <p className="text-red-500">{errors.password?.types && errors.password?.types['too_big']}</p>
+      <label 
+        className="text-sm lg:text-base font-bold after:ml-0.5 after:text-red-500 after:content-['*']"
+        htmlFor="password"
+      >
+        Password
+      </label>
+      <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
+        <input 
+          className="flex-1 w-full p-1 px-2"
+          type={passwordVisibility ? 'text' : 'password'} 
+          {...register('password', {
+            onChange: () => {
+              trigger('confirm');
+            }
+          })}
+          autoComplete="off"
+        />
+        <button 
+          className="px-2 cursor-pointer hover:[&>*]:text-cyan-500 hover:[&>*]:scale-110 [&>*]:transition-all [&>*]:ease-in-out [&>*]:duration-150"
+          type="button" 
+          onClick={() => setPasswordVisibility(!passwordVisibility)}
+        >
+          <FontAwesomeIcon icon={passwordVisibility ? faEyeSlash : faEye} />
+        </button>
+      </div>
+      <p className="h-3 text-[0.75rem] text-red-500">{errors.password?.types && errors.password?.types['too_big']}</p>
       <div>
-        <p>Password must:</p>
-        <ul>
-          {passwordErrorsArray.map((error) => (
-            <li key={error} className={errorArray.includes(error) ? 'text-red-500' : 'text-green-500'}>{error}</li>
-          ))}
+        <p className="text-sm">Password must:</p>
+        <ul className="flex flex-col text-[0.75rem]">
+          {passwordErrorsArray.map((error) => {
+            const errorIncluded = errorArray.includes(error);
+
+            return (
+              <li 
+                className={`${errorIncluded ? 'text-red-500' : 'text-green-500'}`}
+                key={error}
+              >
+                <FontAwesomeIcon icon={errorIncluded ? faX : faCheck} />
+                {error}
+              </li>
+            );
+          })}
         </ul>
       </div>
-      <label htmlFor="confirm">Confirm Password</label>
-      <input 
-        type={confirmVisibility ? 'text' : 'password'} 
-        {...register('confirm')}
-        placeholder="Re-enter Password"
-        autoComplete="off"
-      />
-      <button type="button" onClick={() => setConfirmVisibility(!confirmVisibility)}>Reveal</button>
-      <p className="text-red-500">{errors.confirm && errors.confirm.message}</p>
+      <label 
+        className="text-sm lg:text-base font-bold after:ml-0.5 after:text-red-500 after:content-['*']"
+        htmlFor="confirm"
+      >
+        Confirm Password
+      </label>
+      <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
+        <input 
+          className="flex-1 w-full p-1 px-2"
+          type={confirmVisibility ? 'text' : 'password'} 
+          {...register('confirm')}
+          placeholder="Re-enter Password"
+          autoComplete="off"
+        />
+        <button 
+          className="px-2 cursor-pointer hover:[&>*]:text-cyan-500 hover:[&>*]:scale-110 [&>*]:transition-all [&>*]:ease-in-out [&>*]:duration-150"
+          type="button" 
+          onClick={() => setConfirmVisibility(!confirmVisibility)}
+        >
+          <FontAwesomeIcon icon={passwordVisibility ? faEyeSlash : faEye} />
+        </button>
+      </div>
+      <p className="h-4 mb-2 text-[0.75rem] text-red-500">{errors.confirm && errors.confirm.message}</p>
     </>
   );
 }

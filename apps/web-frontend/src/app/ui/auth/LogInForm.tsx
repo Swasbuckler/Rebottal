@@ -74,7 +74,7 @@ export default function LogInForm() {
         register={register} 
         errors={errors}
       />
-      <p className="h-5 lg:h-6 text-[0.75rem] lg:text-base text-red-500">{failedLogIn && 'Incorrect Username/Email or Password.'}</p>
+      <p className="h-4 text-[0.75rem] text-red-500">{failedLogIn && 'Incorrect Username/Email or Password.'}</p>
       <RememberMeInput register={register} />
       <button 
         className="h-8 p-1 mb-2 text-sm lg:text-base font-bold text-[#171717] bg-cyan-500 hover:bg-cyan-400 rounded-md cursor-pointer transition-all ease-in-out duration-200" 
@@ -99,10 +99,10 @@ function UsernameOrEmailInput({
   return (
     <>
       <label
-        className="text-sm lg:text-base font-bold" 
+        className="text-sm lg:text-base font-bold after:ml-0.5 after:text-red-500 after:content-['*']" 
         htmlFor="usernameOrEmail"
       >
-        Enter Username or Email
+        Username or Email
       </label>
       <input 
         className="p-1 px-2 mb-2 bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md"
@@ -128,10 +128,10 @@ function PasswordInput({
     <>
       <div className="flex justify-between">
         <label 
-          className="text-sm lg:text-base font-bold" 
+          className="text-sm lg:text-base font-bold after:ml-0.5 after:text-red-500 after:content-['*']" 
           htmlFor="password"
         >
-          Enter Password
+          Password
         </label>
         <Link
           className="text-sm lg:text-base text-right text-cyan-600 dark:text-cyan-500 hover:text-cyan-400 underline transition-all ease-in-out duration-200"
@@ -140,7 +140,7 @@ function PasswordInput({
           Forgot Password?
         </Link>
       </div>
-      <div className="flex justify-between mb-2 bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
+      <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
         <input 
           className="flex-1 w-full p-1 px-2"
           type={passwordVisibility ? 'text' : 'password'} 
