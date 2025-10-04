@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -13,46 +8,99 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// CREATE DATABASE *Database Name*;
+
+/*
+*   CREATE TABLE User (
+*     uuid        UUID          UNIQUE NOT NULL,
+*     createdAt   TIMESTAMPTZ   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+*     username    VARCHAR(128)  UNIQUE NOT NULL,
+*     email       VARCHAR(320)  UNIQUE NOT NULL,
+*     password    VARCHAR,
+*     verified    BOOLEAN       DEFAULT false NOT NULL,
+*     role        UserRole      DEFAULT USER NOT NULL,
+*     PRIMARY KEY (uuid)
+*   );
+*/
 model User {
   uuid          String          @default(uuid()) @id @unique @db.Uuid
   createdAt     DateTime        @default(now()) @db.Timestamptz()
   username      String          @unique @db.VarChar(128)
   email         String          @unique @db.VarChar(320)
-  password      String?         @db.VarChar(128)
+  password      String?         @db.VarChar
   verified      Boolean         @default(false)
-  role          Role            @default(USER)
+  role          UserRole        @default(USER)
   refreshTokens RefreshToken[]    
   otps          OTP[]
 }
 
+/*
+*   CREATE TABLE RefreshToken (
+*     id          SERIAL        NOT NULL,
+*     userUuid    UUID          NOT NULL,
+*     sub         UUID          UNIQUE NOT NULL,
+*     token       VARCHAR,      NOT NULL
+*     rememberMe  BOOLEAN       DEFAULT false NOT NULL,
+*     accessedAt  TIMESTAMPTZ   NOT NULL,
+*     expiresAt   TIMESTAMPTZ   NOT NULL,
+*     PRIMARY KEY (id)
+*     CONSTRAINT refreshtoken_fk_user
+*       FOREIGN KEY (userUuid) 
+*       REFERENCES User(uuid)
+*       ON DELETE CASCADE
+*       ON UPDATE CASCADE
+*   );
+*/
 model RefreshToken {
   id            Int       @default(autoincrement()) @id
   user          User      @relation(fields: [userUuid], references: [uuid], onDelete: Cascade, onUpdate: Cascade)
   userUuid      String    @db.Uuid
   sub           String    @db.Uuid @unique
-  token         String    
+  token         String    @db.VarChar
   rememberMe    Boolean   @default(false)
   accessedAt    DateTime  @db.Timestamptz()
   expiresAt     DateTime  @db.Timestamptz()
 }
 
+/*
+*   CREATE TABLE OTP (
+*     id          SERIAL        NOT NULL,
+*     userUuid    UUID          NOT NULL,
+*     code        VARCHAR(6)    NOT NULL,
+*     purpose     OTPPurpose    NOT NULL,
+*     createdAt   TIMESTAMPTZ   DEFAULT CURRENT_TIMESTAMP NOT NULL,
+*     expiresAt   TIMESTAMPTZ   NOT NULL,
+*     PRIMARY KEY (id)
+*     CONSTRAINT otp_fk_user
+*       FOREIGN KEY (userUuid) 
+*       REFERENCES User(uuid)
+*       ON DELETE CASCADE
+*       ON UPDATE CASCADE
+*   );
+*/
 model OTP {
-  id            Int       @default(autoincrement()) @id
-  user          User      @relation(fields: [userUuid], references: [uuid], onDelete: Cascade, onUpdate: Cascade)
-  userUuid      String    @db.Uuid
-  code          String    @db.VarChar(6)
-  purpose       Purpose
-  createdAt     DateTime  @default(now()) @db.Timestamptz()
-  expiresAt     DateTime  @db.Timestamptz()
+  id            Int         @default(autoincrement()) @id
+  user          User        @relation(fields: [userUuid], references: [uuid], onDelete: Cascade, onUpdate: Cascade)
+  userUuid      String      @db.Uuid
+  code          String      @db.VarChar(6)
+  purpose       OTPPurpose
+  createdAt     DateTime    @default(now()) @db.Timestamptz()
+  expiresAt     DateTime    @db.Timestamptz()
 }
 
-enum Role {
+/*
+*   CREATE TYPE UserRole AS ENUM ('USER', 'ADMIN_LEVEL_1', 'ADMIN_LEVEL_2');
+*/
+enum UserRole {
   USER
   ADMIN_LEVEL_1
   ADMIN_LEVEL_2
 }
 
-enum Purpose {
+/*
+*   CREATE TYPE OTPPurpose AS ENUM ('VERIFICATION', 'PASSWORD_RESET');
+*/
+enum OTPPurpose {
   VERIFICATION
   PASSWORD_RESET
 }
