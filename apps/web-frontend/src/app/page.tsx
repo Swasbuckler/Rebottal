@@ -1,8 +1,5 @@
 'use client';
 
-import { GoogleSignInParty } from "@rebottal/app-definitions";
-import Link from "next/link";
-import { boardcastSignInAuthReceive } from './lib/auth/third-party-sign-in';
 import NavBar, { NavBarContentSmooth } from "./ui/components/NavBar";
 import Hero from "./ui/home/Hero";
 import Service from "./ui/home/Service";
@@ -10,6 +7,7 @@ import gsap, { DrawSVGPlugin, ScrollSmoother, ScrollTrigger, SplitText } from "g
 import { useGSAP } from "@gsap/react";
 import HowToPlay from "./ui/home/HowToPlay";
 import { useRef } from "react";
+import ScrollToTop from "./ui/components/ScrollToTop";
 
 gsap.registerPlugin(useGSAP, DrawSVGPlugin, SplitText, ScrollTrigger, ScrollSmoother);
 
@@ -55,6 +53,7 @@ export default function HomePage() {
       <header className="fixed top-0 w-full z-99">
         <NavBar navBarContent={navBarContent} />
       </header>
+      <ScrollToTop smoother={smoother} />
       <div id="content">
         <Hero 
           id="home" 
@@ -62,17 +61,6 @@ export default function HomePage() {
         />
         <Service />
         <HowToPlay id="howtoplay" />
-        <div className="flex flex-col gap-5">
-          <Link href={'/sign-up'}>Sign Up</Link>
-          <Link href={'/log-in'}>Log In</Link>
-          <Link href={'/verification'}>Verification</Link>
-          <button type="button" onClick={async () => {
-            window.open('/sign-in/google', 'popup', 'popup=true');
-            boardcastSignInAuthReceive(GoogleSignInParty);
-          }}>
-            Sign Up with Google
-          </button>
-        </div>
       </div>
     </div>
   );

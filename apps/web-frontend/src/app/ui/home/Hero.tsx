@@ -15,7 +15,6 @@ export default function Hero({
   smoother: RefObject<ScrollSmoother | null>
 }) {
 
-
   return (
     <>
       <div 
@@ -146,7 +145,6 @@ function HeroSection({
       className="z-1"
     >
       <div>
-        <div className="h-7 sm:h-0"></div>
         <div className="flex flex-col gap-3 md:gap-5 items-center justify-center w-full h-[75vh] md:h-screen">
           <div className="relative text-lg md:text-2xl hero-text text-center overflow-hidden">
             <span className="font-bungee tracking-wide">Debates</span> and <span className="font-bungee tracking-wide">Rebuttals</span>
@@ -343,7 +341,7 @@ function LearnButton({
     >
       <div className="flex gap-3 items-center">
         Learn How to Play 
-        <div className="relative size-6 border-2 rounded-full border-[#0a0a0a] dark:border-[#ededed] overflow-hidden hero-arrows">
+        <div className="relative size-6 border-2 rounded-full border-[#0a0a0a] dark:border-[#ededed] overflow-hidden">
           <span className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
           <span className="absolute -top-full left-1/2 transform -translate-x-1/2 -translate-y-1/6 transition-all ease-in-out duration-400">↓</span>
         </div>

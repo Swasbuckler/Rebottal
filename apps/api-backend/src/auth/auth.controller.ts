@@ -1,4 +1,4 @@
-import { Body, ConflictException, Controller, Get, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, ConflictException, Controller, Get, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { LogInUserDto } from 'src/user/dto/log-in-user.dto';
@@ -13,11 +13,14 @@ import { Throttle } from '@nestjs/throttler';
 import { SubmitOTPDto } from 'src/otp/dto/submit-otp.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { RecaptchaAuthGuard } from './guards/recaptcha-auth.guard';
+import { EmailDto } from 'src/user/dto/email.dto';
 
 @Throttle({default: {limit: 3, ttl: 5000}})
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService
+  ) {}
 
   @UseGuards(RecaptchaAuthGuard)
   @Post('sign-up')
@@ -59,25 +62,18 @@ export class AuthController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('verification/request')
-  async requestVerification(@CurrentUser() user: User, @Res({passthrough: true}) response: Response) {
-    if (user.verified) {
-      throw new ConflictException();
-    }
-
-    await this.authService.requestVerification(user);
-    response.status(HttpStatus.OK);
+  //@Throttle({default: {limit: 3, ttl: 3600000}})
+  @Post('verification/request')
+  async requestVerification(@Body() email: EmailDto, @Res({passthrough: true}) response: Response) {
+    const expiresAt = await this.authService.requestVerification(email.email);
+    response.status(HttpStatus.OK).json({
+      otpExpiresAt: expiresAt.toJSON()
+    });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('verification/submit')
-  async submitVerification(@CurrentUser() user: User, @Body() data: SubmitOTPDto, @Res({passthrough: true}) response: Response) {
-    if (user.verified) {
-      throw new ConflictException();
-    }
-
-    await this.authService.submitVerification(user, data.otpCode);
+  async submitVerification(@Body() data: SubmitOTPDto, @Res({passthrough: true}) response: Response) {
+    await this.authService.submitVerification(data.email, data.otpCode);
     response.status(HttpStatus.OK);
   }
 

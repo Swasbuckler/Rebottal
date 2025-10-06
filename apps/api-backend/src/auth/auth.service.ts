@@ -27,6 +27,11 @@ export class AuthService {
   private readonly otpDuration = 300000;
 
   async signUp(data: CreateUserDto) {
+    const user = await this.userService.findUser(data.email);
+    if (user) {
+      throw new ConflictException();
+    }
+
     await this.userService.createUser(data);
   }
 
@@ -184,28 +189,49 @@ export class AuthService {
     await this.refreshTokenService.deleteRefreshToken(sub);
   }
 
-  async requestVerification(user: User) {
+  async requestVerification(email: string) {
+    const user = await this.userService.findUser(email);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    if (user.verified) {
+      throw new ConflictException();
+    }
+
     const otpCode = await this.mailerService.generateOTP();
     
+    const expiresAt = new Date(Date.now() + this.otpDuration);
+
     const otpData: CreateOtpDto = {
       userUuid: user.uuid,
       code: otpCode,
       purpose: 'VERIFICATION',
       createdAt: new Date(Date.now()).toISOString(),
-      expiresAt: new Date(Date.now() + this.otpDuration).toISOString()
+      expiresAt: expiresAt.toISOString()
     }
     
     const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
     if (!otp) {
-      this.otpService.createOTP(otpData);
+      await this.otpService.createOTP(otpData);
     } else {
-      this.otpService.updateOTPById(otp.id, otpData);
+      await this.otpService.updateOTPById(otp.id, otpData);
     }
 
     await this.mailerService.sendOTPEmail(user.email, otpCode);
+    return expiresAt;
   }
 
-  async submitVerification(user: User, otpCode: string) {
+  async submitVerification(email: string, otpCode: string) {
+    const user = await this.userService.findUser(email);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    if (user.verified) {
+      throw new ConflictException();
+    }
+
     const otp = await this.otpService.findOTPByUserUuidAndPurpose(user.uuid, 'VERIFICATION');
     if (!otp) {
       throw new UnauthorizedException();

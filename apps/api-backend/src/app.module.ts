@@ -4,13 +4,13 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { BadRequestException } from "@nestjs/common";
 import { createZodValidationPipe } from "nestjs-zod";
 import { ZodError } from "zod";
 import { ModelModule } from './model/model.module';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { MailerModule } from './mailer/mailer.module';
 import { OtpModule } from './otp/otp.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -27,6 +27,10 @@ const MyZodValidationPipe = createZodValidationPipe({
       provide: APP_PIPE,
       useClass: MyZodValidationPipe
     },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
   ],
   imports: [
     PrismaModule, 
@@ -39,17 +43,6 @@ const MyZodValidationPipe = createZodValidationPipe({
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          name: 'short',
-          ttl: 1000,
-          limit: 3,
-        },
-        {
-          name: 'medium',
-          ttl: 10000,
-          limit: 20
-        },
-        {
-          name: 'long',
           ttl: 60000,
           limit: 100
         }

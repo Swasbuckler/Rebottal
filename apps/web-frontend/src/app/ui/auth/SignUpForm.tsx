@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { FieldErrors, SubmitHandler, useForm, UseFormGetValues, UseFormRegister, UseFormTrigger } from "react-hook-form";
 import { passwordErrorsArray, signUpFormSchema, SignUpUser, CheckData, CreateUser } from "@rebottal/app-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +10,14 @@ import { getRecaptchaToken } from "@/app/lib/auth/recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faEye, faEyeSlash, faSpinner, faX } from "@fortawesome/free-solid-svg-icons";
 
-export default function SignUpForm() {
+export default function SignUpForm({
+  setEmail
+}: {
+  setEmail: Dispatch<SetStateAction<string>>
+}) {
   
+  const [existsList, setExistsList] = useState([false, false]);
+
   const {
     register,
     handleSubmit,
@@ -24,7 +30,22 @@ export default function SignUpForm() {
     mode: 'onChange'
   });
 
+  const setExists = (index: number, exists: boolean) => {
+    let newExistsList = [];
+    if (index < 0 || index >= existsList.length) {
+      newExistsList = existsList;
+    } else {
+      newExistsList = [...existsList.slice(0, index), exists, ...existsList.slice(index + 1)];
+    }
+
+    setExistsList(newExistsList);
+  };
+
   const submitSignUp: SubmitHandler<SignUpUser> = async (data) => {
+    if (existsList.some((exists) => exists === true)) {
+      return;
+    }
+
     const rawInput: SignUpUser = {
       username: data.username,
       email: data.email,
@@ -45,15 +66,23 @@ export default function SignUpForm() {
     
     const recaptchaToken = await getRecaptchaToken();
 
-    await axios.post(
-      '/api/auth/sign-up', 
-      signUpData,
-      {
-        headers: {
-          'x-recaptcha-token': recaptchaToken
+    try {
+      const response = await axios.post(
+        '/api/auth/sign-up', 
+        signUpData,
+        {
+          headers: {
+            'x-recaptcha-token': recaptchaToken
+          }
         }
+      );
+
+      if (response.status === 200) {
+        setEmail(signUpData.email);
       }
-    );
+    } catch (error: any) {
+      
+    }
   }
   
   return (
@@ -71,6 +100,8 @@ export default function SignUpForm() {
         apiUrl={'/check/username'}
         errors={errors}
         touchedFields={touchedFields}
+        existIndex={0}
+        setExists={setExists}
       />
       <DebounceInput 
         type="text"
@@ -82,6 +113,8 @@ export default function SignUpForm() {
         apiUrl={'/check/email'}
         errors={errors}
         touchedFields={touchedFields}
+        existIndex={1}
+        setExists={setExists}
       />
       <PasswordInput 
         register={register}
@@ -110,6 +143,8 @@ function DebounceInput({
   apiUrl,
   errors,
   touchedFields,
+  existIndex,
+  setExists,
 }: {
   type: string,
   field: keyof SignUpUser,
@@ -119,7 +154,9 @@ function DebounceInput({
   getValues: UseFormGetValues<SignUpUser>,
   apiUrl: string,
   errors: FieldErrors<SignUpUser>,
-  touchedFields: Partial<Readonly<any>>
+  touchedFields: Partial<Readonly<any>>,
+  existIndex: number,
+  setExists: (index: number, exists: boolean) => void
 }) {
 
   const [valueExists, setValueExists] = useState<ValueExists>(1);
@@ -132,8 +169,12 @@ function DebounceInput({
       checkData
     );
 
-    if (await response.data) setValueExists(n => 1);
-    else setValueExists(n => 0);
+    if (response.data) {
+      setValueExists(() => 1);
+    } else {
+      setValueExists(() => 0);
+      setExists(existIndex, false);
+    };
   };
 
   const debounceDelay = 1000;
@@ -162,11 +203,13 @@ function DebounceInput({
       </label>
       <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
         <input
-          className="flex-1 w-full p-1 px-2"
+          className="flex-1 w-full p-1 px-2 text-sm lg:text-base"
           type={type}
           {...register(field, {
             onChange: async () => {
-              setValueExists(n => 2);
+              setValueExists(() => 2);
+              setExists(existIndex, true);
+
               const valid = await trigger(field);
               valueDebounce(valid, getValues(field));
             }
@@ -214,7 +257,7 @@ function PasswordInput({
       </label>
       <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
         <input 
-          className="flex-1 w-full p-1 px-2"
+          className="flex-1 w-full p-1 px-2 text-sm lg:text-base"
           type={passwordVisibility ? 'text' : 'password'} 
           {...register('password', {
             onChange: () => {
@@ -258,7 +301,7 @@ function PasswordInput({
       </label>
       <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
         <input 
-          className="flex-1 w-full p-1 px-2"
+          className="flex-1 w-full p-1 px-2 text-sm lg:text-base"
           type={confirmVisibility ? 'text' : 'password'} 
           {...register('confirm')}
           placeholder="Re-enter Password"

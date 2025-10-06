@@ -20,17 +20,23 @@ const passwordErrors = {
 
 export const passwordErrorsArray = Object.values(passwordErrors);
 
-export const signUpFormSchema = z.object({
+export const usernamaFormSchema = z.object({
   username: z
     .string({error: 'Please add a desired Username'})
     .trim()
     .min(minUsernameLength, {error: `Username must be at least ${minUsernameLength} Characters`})
     .max(maxUsernameLength, {error: `Username must not exceed ${maxUsernameLength} Characters`})
     .refine((value) => !(/[^a-zA-Z0-9]/.test(value)), {error: 'Username must not include Special Characters'}),
+});
+
+export const emailFormSchema = z.object({
   email: z
     .email({error: 'Please enter a valid Email'})
     .trim()
     .max(maxEmailLength, {error: `Email must not exceed ${maxEmailLength} Characters`}),
+});
+
+export const passwordFormSchema = z.object({
   password: z
     .string()
     .min(minPasswordLength, {error: passwordErrors.minLength})
@@ -39,6 +45,16 @@ export const signUpFormSchema = z.object({
     .regex(/[A-Z]/, {error: passwordErrors.uppercase})
     .regex(/[0-9]/, {error: passwordErrors.number})
     .regex(/[^a-zA-Z0-9 ]/, {error: passwordErrors.special}),
+  confirm: z.string(),
+}).refine((data) => data.password === data.confirm, {
+  error: 'Passwords do not match',
+  path: ['confirm'], 
+});
+
+export const signUpFormSchema = z.object({
+  username: usernamaFormSchema.shape.username,
+  email: emailFormSchema.shape.email,
+  password: passwordFormSchema.shape.password,
   confirm: z.string(),
 }).refine((data) => data.password === data.confirm, {
   error: 'Passwords do not match',
@@ -62,6 +78,7 @@ export type LogInUser = z.infer<typeof logInFormSchema>;
 export const otpLength = 6;
 
 export const submitOTPCodeSchema = z.object({
+  email: emailFormSchema.shape.email,
   otpCode: z
     .string({error: 'Please enter the OTP code'})
     .length(otpLength, {error: `OTP code must be ${otpLength} Numbers long`})
@@ -167,7 +184,7 @@ export type RefreshToken = {
 *   Definitions for OTP Table
 */
 
-const otpPurposeValues = ['VERIFICATION', 'PASSWORD_RESET'] as const;
+const otpPurposeValues = ['TWO_FACTOR', 'VERIFICATION', 'PASSWORD_RESET'] as const;
 
 export const createOTPSchema = z.object({
   userUuid: z

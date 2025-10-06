@@ -11,6 +11,7 @@ import { RefreshTokenModule } from 'src/refresh-token/refresh-token.module';
 import { MailerModule } from 'src/mailer/mailer.module';
 import { OtpModule } from 'src/otp/otp.module';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   controllers: [AuthController],

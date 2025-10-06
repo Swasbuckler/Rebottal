@@ -111,12 +111,12 @@ function SideNavBar({
 function RebottalLogo() {
 
   return (
-    <Link href={'/'} className="lg:flex-1 z-10">
-      <div className="flex lg:flex-1 gap-2 items-center z-10 font-bungee">
+    <div className="self-start lg:flex-1 z-10">
+      <Link href={'/'} className="flex gap-2 items-center w-fit z-10 font-bungee">
         <DefaultLogo className="size-8 fill-[#171717] dark:fill-[#ededed] transition-all" />
         <p className="text-xl">Re<span>bot</span>tal</p>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 

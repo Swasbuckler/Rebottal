@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new ConsoleLogger({
       prefix: 'Rebottal_Backend',
-      json: true
+      
     })
   });
 

@@ -49,8 +49,13 @@ export class UserService {
     return await this.prismaService.user.findFirst({
       where: {
         OR: [
-          {username: usernameOrEmail},
-          {email: usernameOrEmail}
+          {username: {
+            equals: usernameOrEmail,
+          }},
+          {email: {
+            equals: usernameOrEmail,
+            mode: 'insensitive'
+          }}
         ]
       },
     });
@@ -81,9 +86,11 @@ export class UserService {
   }
 
   async doesUsernameExists(username: string): Promise<boolean> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findFirst({
       where: {
-        username
+        username: {
+          equals: username,
+        }
       }
     });
 
@@ -92,9 +99,12 @@ export class UserService {
   }
 
   async doesEmailExists(email: string): Promise<boolean> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findFirst({
       where: {
-        email
+        email: {
+          equals: email,
+          mode: 'insensitive'
+        }
       }
     });
 
@@ -105,7 +115,7 @@ export class UserService {
   @Cron('0 0 * * *')
   async handleExpiredRefreshTokens() {
     const date30DayAgo = new Date(Date.now());
-    date30DayAgo.setDate(date30DayAgo.getDate() - 30);
+    date30DayAgo.setDate(date30DayAgo.getDate() - 7);
 
     await this.prismaService.user.deleteMany({
       where: {

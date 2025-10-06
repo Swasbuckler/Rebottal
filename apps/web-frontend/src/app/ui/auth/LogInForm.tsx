@@ -9,9 +9,13 @@ import { getRecaptchaToken } from "@/app/lib/auth/recaptcha";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LogInForm() {
   
+  const router = useRouter();
+  const [failedLogIn, setFailedLogIn] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -19,8 +23,6 @@ export default function LogInForm() {
   } = useForm<LogInUser>({
     resolver: zodResolver(logInFormSchema),
   });
-
-  const [failedLogIn, setFailedLogIn] = useState(false)
 
   const submitLogIn: SubmitHandler<LogInUser> = async (data) => {
     setFailedLogIn(() => false);
@@ -50,15 +52,25 @@ export default function LogInForm() {
 
     const recaptchaToken = await getRecaptchaToken();
     
-    await axios.post(
-      '/api/auth/log-in', 
-      logInData,
-      {
-        headers: {
-          'x-recaptcha-token': recaptchaToken
+    try {
+      const response = await axios.post(
+        '/api/auth/log-in', 
+        logInData,
+        {
+          headers: {
+            'x-recaptcha-token': recaptchaToken
+          }
         }
+      );
+
+      if (response.status === 200) {
+        router.push('/');
       }
-    );
+    } catch (error: any) {
+      if (error.status === 401) {
+        setFailedLogIn(() => true);
+      }
+    }
   }
 
   return (
@@ -105,7 +117,7 @@ function UsernameOrEmailInput({
         Username or Email
       </label>
       <input 
-        className="p-1 px-2 mb-2 bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md"
+        className="p-1 px-2 mb-2 text-sm lg:text-base bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md"
         type="text" 
         {...register('usernameOrEmail')}
         autoComplete="off"
@@ -142,7 +154,7 @@ function PasswordInput({
       </div>
       <div className="flex justify-between bg-[#ededed] dark:bg-[#171717] border-1 border-gray-500 rounded-md">
         <input 
-          className="flex-1 w-full p-1 px-2"
+          className="flex-1 w-full p-1 px-2 text-sm lg:text-base"
           type={passwordVisibility ? 'text' : 'password'} 
           {...register('password')}
           autoComplete="off"

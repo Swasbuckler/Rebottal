@@ -47,13 +47,13 @@ export class UserController {
     return await this.userService.deleteUser(uuid);
   }
 
-  @Throttle({default: {limit: 10, ttl: 1000}})
+  @Throttle({default: {limit: 1, ttl: 1000}})
   @Post('check/username')
   async checkUsernameAvailability(@Body() inputData: CheckDataDto): Promise<boolean> {
     return await this.userService.doesUsernameExists(inputData.value);
   }
 
-  @Throttle({default: {limit: 10, ttl: 1000}})
+  @Throttle({default: {limit: 1, ttl: 1000}})
   @Post('check/email')
   async checkEmailAvailability(@Body() inputData: CheckDataDto): Promise<boolean> {
     return await this.userService.doesEmailExists(inputData.value);

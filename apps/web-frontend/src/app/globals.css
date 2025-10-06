@@ -3,8 +3,6 @@
 @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
   --font-bungee: "Bungee", sans-serif;
 }
 
